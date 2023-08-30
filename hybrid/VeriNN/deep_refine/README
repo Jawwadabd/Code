@@ -1,0 +1,11 @@
+
+Install blas and lapack. 
+    For ubuntu: apt install libblas-dev liblapack-dev
+
+Build drefine:
+    goto directory ../VeriNN/deep_refine
+    make
+
+
+
+
