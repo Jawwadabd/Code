@@ -1,6 +1,6 @@
-Network file: /home/jawwadabd/Downloads/sem2/hybrid/VeriNN/deep_refine/tf/mnist/mnist_relu_3_50.tf
+Network file: /home/jawwadabd/Downloads/sem2/code/hybrid/VeriNN/deep_refine/tf/mnist/mnist_relu_3_50.tf
 Dataset type: MNIST
-Dataset file: /home/jawwadabd/Downloads/sem2/hybrid/VeriNN/deep_refine/benchmarks/dataset/mnist/mnist_test.csv
+Dataset file: /home/jawwadabd/Downloads/sem2/code/hybrid/VeriNN/deep_refine/benchmarks/dataset/mnist/mnist_test.csv
 Epsilon: 0.05
 Tool: drefine
 Parallization: off
@@ -12,23 +12,23 @@ Weight matrix shape: {50, 50}
 Bias matrix shape: {50}
 Weight matrix shape: {50, 10}
 Bias matrix shape: {10}
-Image index: 24
-0 0 0.242384 0 8.03745 0 0 0.694721 0 1.83088 
+Image index: 6
+0 0 0 0 9.2067 0 0 1.5504 0.958164 1.56999 
 Queue iteration: 1
 work_q size: 1
 Verified dims: 
 Academic license - for non-commercial use only - expires 2024-01-18
-Deeppoly error with (4, 0) :7.05663
-Deeppoly error with (4, 1) :8.77167
-Deeppoly error with (4, 2) :13.4475
-Deeppoly error with (4, 3) :8.93396
-Deeppoly error with (4, 5) :13.6867
-Deeppoly error with (4, 6) :10.817
-Deeppoly error with (4, 7) :12.6881
-Deeppoly error with (4, 8) :8.64105
-Deeppoly error with (4, 9) :14.8555
+Deeppoly error with (4, 0) :4.42031
+Deeppoly error with (4, 1) :7.21143
+Deeppoly error with (4, 2) :7.6055
+Deeppoly error with (4, 3) :5.7698
+Deeppoly error with (4, 5) :8.96626
+Deeppoly error with (4, 6) :6.27218
+Deeppoly error with (4, 7) :9.99824
+Deeppoly error with (4, 8) :10.5293
+Deeppoly error with (4, 9) :9.93485
 Academic license - for non-commercial use only - expires 2024-01-18
-dp-Layer index: 0, marked neurons: 29, 5, 34, 14, 24, 
+dp-Layer index: 0, marked neurons: 38, 7, 41, 46, 4, 
 
 Academic license - for non-commercial use only - expires 2024-01-18
 Academic license - for non-commercial use only - expires 2024-01-18
@@ -50,40 +50,5 @@ Academic license - for non-commercial use only - expires 2024-01-18
 Academic license - for non-commercial use only - expires 2024-01-18
 Academic license - for non-commercial use only - expires 2024-01-18
 Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Layer index: 0, marked neurons: 1, 36, 26, 32, 0, 
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Academic license - for non-commercial use only - expires 2024-01-18
-Found counter assignment!! --- 140251841967680
-mnist_relu_3_50.tf,0.050000,image_index=24,image_label=9,prop_name=null,failed,drefine,num_sub_prob=1,num_cegar_iterations:0,num_marked_neurons=10,total_time=4
+Found counter assignment!! --- 140047108011584
+mnist_relu_3_50.tf,0.050000,image_index=6,image_label=8,prop_name=null,failed,drefine,num_sub_prob=1,num_cegar_iterations:0,num_marked_neurons=5,total_time=0

@@ -433,3 +433,10 @@ mnist_relu_3_50.tf,0.050000,98,6,null,verified,drefine,1,12,59,49
 mnist_relu_3_50.tf,0.050000,99,9,null,verified,drefine,1,0,15,11
 mnist_relu_3_50.tf,0.050000,61,2,null,failed,drefine,1,4,28,36
 mnist_relu_3_50.tf,0.050000,24,9,null,failed,drefine,1,0,10,4
+mnist_relu_3_50.tf,0.050000,2,4,null,failed,drefine,1,0,5,0
+mnist_relu_3_50.tf,0.050000,16,9,null,verified,drefine,1,0,5,0
+mnist_relu_3_50.tf,0.050000,18,3,null,verified,drefine,1,1,20,30
+mnist_relu_3_50.tf,0.050000,24,4,null,verified,drefine,1,7,40,217
+mnist_relu_3_50.tf,0.050000,2,6,null,failed,drefine,1,0,5,0
+mnist_relu_3_50.tf,0.050000,4,4,null,verified,drefine,1,0,5,0
+mnist_relu_3_50.tf,0.050000,6,8,null,failed,drefine,1,0,5,0
