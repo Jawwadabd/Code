@@ -61,6 +61,7 @@ namespace Configuration_deeppoly{
     extern std::string tool;
     extern std::string vnnlib_prp_file_path;
     extern bool is_input_split;
+    extern double confidence_val;
 
 }
 

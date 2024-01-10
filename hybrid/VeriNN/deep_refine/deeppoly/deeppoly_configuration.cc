@@ -29,7 +29,7 @@ namespace Configuration_deeppoly{
     std::string tool;
     std::string vnnlib_prp_file_path;
     bool is_input_split;
-
+    double confidence_val;
     int init_options(int num_of_params, char* params[]){
         try{
             desc.add_options()
@@ -48,7 +48,9 @@ namespace Configuration_deeppoly{
             ("tool", po::value<std::string>(&tool)->default_value(default_tool), "tool name drefine/deeppoly")
             ("vnnlib-prp-file,vnnlib", po::value<std::string>(&vnnlib_prp_file_path)->default_value(""), "vnnlib prp file path")
             ("is-input-split", po::value<bool>(&is_input_split)->default_value(false), "run with heuristic input space split")
+            ("confidence", po::value<double>(&confidence_val)->default_value(50))
             ;
+            
             po::store(po::parse_command_line(num_of_params, params, desc), vm);
             po::notify(vm);
             show_options(vm);

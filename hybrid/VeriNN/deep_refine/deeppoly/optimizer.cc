@@ -127,7 +127,7 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
     // GRBLinExpr grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
     // std::cout<<"verify before opti"<<std::endl;
     size_t index=get_gurobi_var_index(layer, 0);
-    GRBLinExpr grb_obj =  0.95*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+    GRBLinExpr grb_obj =  Configuration_deeppoly::confidence_val*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
     model.setObjective(grb_obj, GRB_MINIMIZE);
     model.optimize();
     // std::cout<<"vrif after opti"<<std::endl;
@@ -213,7 +213,7 @@ bool verify_by_milp(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_ve
     // GRBLinExpr grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
     // std::cout<<"verify before opti"<<std::endl;
     size_t index=get_gurobi_var_index(layer, 0);
-    GRBLinExpr grb_obj =  0.95*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+    GRBLinExpr grb_obj =  Configuration_deeppoly::confidence_val*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
     model.setObjective(grb_obj, GRB_MINIMIZE);
     model.optimize();
     // model.computeIIS();
