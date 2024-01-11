@@ -6,33 +6,33 @@
 #include "../../deeppoly/analysis.hh"
 #include <cstdlib>
 #include<map>
-#include "../../concurrent_run.hh"
+#include "../../parallelization/concurrent_run.hh"
 
 
-bool run_milp_mark_with_milp_refine_mine(Network_t* net){
-    bool is_ce = is_sat_val_ce(net);
-    if(is_ce){
-        return true;
-    }
-    // std::cout<<"here in refine fn"<<std::endl;
+// bool run_milp_mark_with_milp_refine_mine(Network_t* net){
+//     bool is_ce = is_sat_val_ce(net);
+//     if(is_ce){
+//         return true;
+//     }
+//     // std::cout<<"here in refine fn"<<std::endl;
     
-    for(size_t i=0; i<net->layer_vec.size();i++){
-        Layer_t* layer = net->layer_vec[i];
-        bool is_marked=false;
-        if(layer->is_activation){
-            is_marked = is_layer_marked_mine(net, layer);
-            if(is_marked){
-                //std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
-                break;
-            }
-        }
-        else{
-            Layer_t* pred_layer = layer->pred_layer;
-            net->forward_propgate_one_layer(layer->layer_index, pred_layer->res);
-        }
-    }
-    return false;
-}
+//     for(size_t i=0; i<net->layer_vec.size();i++){
+//         Layer_t* layer = net->layer_vec[i];
+//         bool is_marked=false;
+//         if(layer->is_activation){
+//             is_marked = is_layer_marked_mine(net, layer);
+//             if(is_marked){
+//                 //std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
+//                 break;
+//             }
+//         }
+//         else{
+//             Layer_t* pred_layer = layer->pred_layer;
+//             net->forward_propgate_one_layer(layer->layer_index, pred_layer->res);
+//         }
+//     }
+//     return false;
+// }
 
 bool run_milp_mark_with_milp_refine(Network_t* net){
     bool is_ce = is_sat_val_ce(net);
@@ -83,88 +83,88 @@ Neuron_t* get_key_of_max_val(std::map<Neuron_t*, double> & m){
 
     return max_val_key;
 }
-int next_marked_index_r= 0;
-bool is_layer_marked_mine(Network_t* net, Layer_t* start_layer){
-    GRBModel model = create_grb_env_and_model();
-    std::vector<GRBVar> var_vector;
-    creating_vars_with_constant_vars(net, model, var_vector, start_layer->layer_index);
-    size_t var_counter = start_layer->pred_layer->dims;
-    int numlayers = net->layer_vec.size();
-    for(int layer_index = start_layer->layer_index; layer_index < numlayers; layer_index++){
-        Layer_t* layer = net->layer_vec[layer_index];
-        if(layer->is_activation){
-            //create_relu_constr(layer, model, var_vector, var_counter);
-            // create_relu_constr_milp_refine(layer, model, var_vector, var_counter);
-            // std::cout<<"New_list mn size = "<<new_list_mn.size()<<std::endl;
-            // std::cout<<"refine mn size = "<<refine_comb.size()<<std::endl;
-            next_marked_index_r=relu_constr_mine(layer, model, var_vector, var_counter,refine_comb,next_marked_index_r,new_list_mn);
-        }
-        else{
-            create_milp_constr_FC_without_marked(layer, model, var_vector, var_counter);
-        }
-        var_counter += layer->dims;
-    }
+// int next_marked_index_r= 0;
+// bool is_layer_marked_mine(Network_t* net, Layer_t* start_layer){
+//     GRBModel model = create_grb_env_and_model();
+//     std::vector<GRBVar> var_vector;
+//     creating_vars_with_constant_vars(net, model, var_vector, start_layer->layer_index);
+//     size_t var_counter = start_layer->pred_layer->dims;
+//     int numlayers = net->layer_vec.size();
+//     for(int layer_index = start_layer->layer_index; layer_index < numlayers; layer_index++){
+//         Layer_t* layer = net->layer_vec[layer_index];
+//         if(layer->is_activation){
+//             //create_relu_constr(layer, model, var_vector, var_counter);
+//             // create_relu_constr_milp_refine(layer, model, var_vector, var_counter);
+//             // std::cout<<"New_list mn size = "<<new_list_mn.size()<<std::endl;
+//             // std::cout<<"refine mn size = "<<refine_comb.size()<<std::endl;
+//             next_marked_index_r=relu_constr_mine(layer, model, var_vector, var_counter,refine_comb,next_marked_index_r,new_list_mn);
+//         }
+//         else{
+//             create_milp_constr_FC_without_marked(layer, model, var_vector, var_counter);
+//         }
+//         var_counter += layer->dims;
+//     }
     
-    //create_negate_property(model, var_vector, net, start_layer);
+//     //create_negate_property(model, var_vector, net, start_layer);
 
-    var_counter = start_layer->pred_layer->dims;
-    create_optimization_constraints_layer(start_layer, model, var_vector, var_counter);
-    model.optimize();
-    bool is_marked = false;
-    int status = model.get(GRB_IntAttr_Status);
-    std::map<Neuron_t*, double> nt_err_map;
-    // std::cout<<"status==== "<<status<<std::endl;
-    if(status == GRB_OPTIMAL){
-        // std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
-        for(size_t i=0; i<start_layer->neurons.size(); i++){
-            Neuron_t* pred_nt = start_layer->pred_layer->neurons[i];
-            GRBVar var = var_vector[var_counter+i];
-            double sat_val = var.get(GRB_DoubleAttr_X);
-            double res = start_layer->res[i];
-            double diff = abs(sat_val - res);
-            if(diff > DIFF_TOLERANCE){
-                if(pred_nt->lb > 0 && pred_nt->ub > 0){
-                    is_marked = true;
-                    // std::cout<<pred_nt->neuron_index<<", ";
-                    nt_err_map[pred_nt] = diff;
-                }
-            }
-        }
-        // std::cout<<std::endl;
-        std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
-        if(nt_err_map.size() > MAX_NUM_MARKED_NEURONS){
-            for(size_t i = 0; i<MAX_NUM_MARKED_NEURONS; i++){
-                if(nt_err_map.size() > 0){
-                    Neuron_t* max_val_nt = get_key_of_max_val(nt_err_map);
-                    max_val_nt->is_marked = true;
-                    // std::cout<<"Here to push neurons "<<std::endl;
-                    new_list_mn.push_back(max_val_nt);
-                    std::cout<<max_val_nt->neuron_index<<", ";
-                    nt_err_map.erase(max_val_nt);
-                }
-            }
-        }
-        else{
-            std::map<Neuron_t*, double>::iterator itr;
-            for(itr = nt_err_map.begin(); itr != nt_err_map.end(); itr++){
-                itr->first->is_marked = true;
-                // std::cout<<"Here to push neurons "<<std::endl;
-                new_list_mn.push_back(itr->first);
-                std::cout<<itr->first->neuron_index<<", ";
-            }
-        }
-        std::cout<<std::endl;
-    }
-    else{
-        std::cout<<"here in the wrong part"<<std::endl;
-        // assert(0 && "Something is wrong\n");
-    }
-    if(is_marked){
-        start_layer->pred_layer->is_marked = true;
-        return true;
-    }
-    return false;
-}
+//     var_counter = start_layer->pred_layer->dims;
+//     create_optimization_constraints_layer(start_layer, model, var_vector, var_counter);
+//     model.optimize();
+//     bool is_marked = false;
+//     int status = model.get(GRB_IntAttr_Status);
+//     std::map<Neuron_t*, double> nt_err_map;
+//     // std::cout<<"status==== "<<status<<std::endl;
+//     if(status == GRB_OPTIMAL){
+//         // std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
+//         for(size_t i=0; i<start_layer->neurons.size(); i++){
+//             Neuron_t* pred_nt = start_layer->pred_layer->neurons[i];
+//             GRBVar var = var_vector[var_counter+i];
+//             double sat_val = var.get(GRB_DoubleAttr_X);
+//             double res = start_layer->res[i];
+//             double diff = abs(sat_val - res);
+//             if(diff > DIFF_TOLERANCE){
+//                 if(pred_nt->lb > 0 && pred_nt->ub > 0){
+//                     is_marked = true;
+//                     // std::cout<<pred_nt->neuron_index<<", ";
+//                     nt_err_map[pred_nt] = diff;
+//                 }
+//             }
+//         }
+//         // std::cout<<std::endl;
+//         std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
+//         if(nt_err_map.size() > MAX_NUM_MARKED_NEURONS){
+//             for(size_t i = 0; i<MAX_NUM_MARKED_NEURONS; i++){
+//                 if(nt_err_map.size() > 0){
+//                     Neuron_t* max_val_nt = get_key_of_max_val(nt_err_map);
+//                     max_val_nt->is_marked = true;
+//                     // std::cout<<"Here to push neurons "<<std::endl;
+//                     new_list_mn.push_back(max_val_nt);
+//                     std::cout<<max_val_nt->neuron_index<<", ";
+//                     nt_err_map.erase(max_val_nt);
+//                 }
+//             }
+//         }
+//         else{
+//             std::map<Neuron_t*, double>::iterator itr;
+//             for(itr = nt_err_map.begin(); itr != nt_err_map.end(); itr++){
+//                 itr->first->is_marked = true;
+//                 // std::cout<<"Here to push neurons "<<std::endl;
+//                 new_list_mn.push_back(itr->first);
+//                 std::cout<<itr->first->neuron_index<<", ";
+//             }
+//         }
+//         std::cout<<std::endl;
+//     }
+//     else{
+//         std::cout<<"here in the wrong part"<<std::endl;
+//         // assert(0 && "Something is wrong\n");
+//     }
+//     if(is_marked){
+//         start_layer->pred_layer->is_marked = true;
+//         return true;
+//     }
+//     return false;
+// }
 
 bool is_layer_marked(Network_t* net, Layer_t* start_layer){
     GRBModel model = create_grb_env_and_model();

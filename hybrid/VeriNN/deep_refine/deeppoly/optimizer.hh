@@ -3,7 +3,7 @@
 //#include "/home/u1411251/Documents/Phd/tools/eran/gurobi912/linux64/include/gurobi_c++.h"
 #include "network.hh"
 #include "gurobi_c++.h"
-#include "../concurrent_run.hh"
+#include "../parallelization/concurrent_run.hh"
 #include<pthread.h>
 #include<bits/stdc++.h>
 #include "../src/lib/drefine_driver.hh"
@@ -24,9 +24,10 @@ void copy_vector_by_index(std::vector<GRBVar>& var_vector, std::vector<GRBVar>& 
 size_t get_gurobi_var_index(Layer_t* layer, size_t index);
 GRBModel create_env_and_model();
 void update_sat_vals(Network_t* net, std::vector<GRBVar>& var_vec);
-bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int> activations );
+// bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int> activations );
 extern std::vector<int> test_lb;
 extern std::vector<int> test_ub;
 extern std::vector<int> test_satval;
 extern std::vector<int> test_exval;
+extern pthread_mutex_t lcked;
 #endif

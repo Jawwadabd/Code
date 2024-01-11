@@ -1,12 +1,12 @@
 #include "concurrent_run.hh"
 #include <pthread.h>
 #include <bits/stdc++.h>
-#include "./src/lib/drefine_driver.hh"
-#include "./src/lib/pullback.hh"
-#include "./src/lib/milp_refine.hh"
-#include "./deeppoly/optimizer.hh"
-#include "./src/lib/milp_mark.hh"
-
+#include "../src/lib/drefine_driver.hh"
+#include "../src/lib/pullback.hh"
+#include "../src/lib/milp_refine.hh"
+#include "../deeppoly/optimizer.hh"
+#include "../src/lib/milp_mark.hh"
+#include "parallel_fns.hh"
 pthread_mutex_t lck;
 // pthread_mutex_t lck_model;
 volatile sig_atomic_t terminate_flag = 0;
@@ -228,6 +228,7 @@ bool looper(Network_t *net){
             if(new_list_mn.size()<10)
             {
                 run_milp_mark_with_milp_refine_mine(net);
+                ITER_COUNTS++;
                 is_refine=false;
             }
             else{

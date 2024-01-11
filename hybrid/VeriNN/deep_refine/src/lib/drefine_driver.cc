@@ -11,12 +11,12 @@
 #include<chrono>
 #include<queue>
 #include<bits/stdc++.h>
-#include "../../concurrent_run.hh"
+#include "../../parallelization/concurrent_run.hh"
 
 size_t ITER_COUNTS = 0; //to count the number cegar iterations
 size_t SUB_PROB_COUNTS = 0; // to count the number of sub problems when input_split on
 size_t NUM_MARKED_NEURONS = 0;
-
+bool concurrent_flag=1;
 int run_refine_poly(int num_args, char* params[]){
     int is_help = deeppoly_set_params(num_args, params);
     if(is_help || (!is_valid_dataset())){
@@ -221,34 +221,34 @@ drefine_status run_refine_poly_for_one_task(Network_t* net){
     return status;
 }
 
-bool run_milp_refine_with_milp_mark_input_split_mine(Network_t* net){
-    net->counter_class_dim = net->actual_label;
-    size_t loop_upper_bound = MILP_WITH_MILP_LIMIT;
-    if(Configuration_deeppoly::is_input_split && SUB_PROB_COUNTS < 3){
-        loop_upper_bound = MILP_WITH_MILP_LIMIT_WITH_INPUT_SPLIT;
-    }
-    size_t loop_counter = 0;
-    while(loop_counter < loop_upper_bound){
-        std::cout<<"refine loop"<<std::endl;
-        bool is_ce = run_milp_mark_with_milp_refine(net);
-        int cntr=0;
-        if(is_ce){
-            std::cout<<"here in is_ce"<<std::endl;
-            return false;
-        }
-        else{
-            bool is_image_verified = is_image_verified_by_milp(net);
-            // bool is_image_verified = concurrent_exec(net);
-            std::cout<<"is image verified "<<is_image_verified<<std::endl;
-            if(is_image_verified){
-               return true;
-            }
-        }
-        loop_counter++;
-        ITER_COUNTS += 1;
-    }
-    return 0; //DUMMY RETURN
-}
+// bool run_milp_refine_with_milp_mark_input_split_mine(Network_t* net){
+//     net->counter_class_dim = net->actual_label;
+//     size_t loop_upper_bound = MILP_WITH_MILP_LIMIT;
+//     if(Configuration_deeppoly::is_input_split && SUB_PROB_COUNTS < 3){
+//         loop_upper_bound = MILP_WITH_MILP_LIMIT_WITH_INPUT_SPLIT;
+//     }
+//     size_t loop_counter = 0;
+//     while(loop_counter < loop_upper_bound){
+//         std::cout<<"refine loop"<<std::endl;
+//         bool is_ce = run_milp_mark_with_milp_refine(net);
+//         int cntr=0;
+//         if(is_ce){
+//             std::cout<<"here in is_ce"<<std::endl;
+//             return false;
+//         }
+//         else{
+//             bool is_image_verified = is_image_verified_by_milp(net);
+//             // bool is_image_verified = concurrent_exec(net);
+//             std::cout<<"is image verified "<<is_image_verified<<std::endl;
+//             if(is_image_verified){
+//                return true;
+//             }
+//         }
+//         loop_counter++;
+//         ITER_COUNTS += 1;
+//     }
+//     return 0; //DUMMY RETURN
+// }
 
 drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
     net->counter_class_dim = net->actual_label;
@@ -256,65 +256,70 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
     if(Configuration_deeppoly::is_input_split && SUB_PROB_COUNTS < 3){
         loop_upper_bound = MILP_WITH_MILP_LIMIT_WITH_INPUT_SPLIT;
     }
-    // size_t loop_counter = 0;
-    // while(loop_counter < loop_upper_bound){
-    //     std::cout<<"refine loop"<<std::endl;
-    //     bool is_ce = run_milp_mark_with_milp_refine(net);
-    //     int cntr=0;
-    //     if(is_ce){
-    //         std::cout<<"here in is_ce"<<std::endl;
-    //         return FAILED;
-    //     }
-    //     else{
-    //         bool is_image_verified = is_image_verified_by_milp(net);
-    //         // bool is_image_verified = concurrent_exec(net);
-    //         std::cout<<"is image verified "<<is_image_verified<<std::endl;
-    //         if(is_image_verified){
-    //            return VERIFIED;
-    //         }
-    //     }
-    //     loop_counter++;
-    //     ITER_COUNTS += 1;
-    // }
-    // std::cout<<"start"<<std::endl;
-    bool is_ce = run_milp_mark_with_milp_refine(net);
-    if(is_ce){
-        return FAILED;
-    }
-    // // std::set<std::pair<int, int>> pairs = {
-    // // {0,29},{0,32},{0,40},{0,41},{0,25},{0,15},{0,1},{0,24},{0,11},{0,39},{0,16},{2,22},{2,28},{2,7},{2,15},{2,35},
-    // // };
-    // // new_list_mn.clear();
-    // // int count=0;
-    // // for(size_t i=0; i<net->layer_vec.size();i++){
-    // //     Layer_t* layer = net->layer_vec[i];
-    // //     if(layer->is_activation){
-    // //         continue;
-    // //     }
-    // //     for(size_t j=0; j< layer->dims; j++){
-    // //         Neuron_t* nt = layer->neurons[j];
-    // //         if(pairs.count({i,j})!=0){
-    // //             nt->is_marked=1;
-    // //             new_list_mn.push_back(nt);
-    // //         }
-    // //     }
-    // // }
-    // // std::cout<<"new_list_mn"<<std::endl;
-    // // for (auto i:new_list_mn){
-    // //     std::cout << "{" << i->layer_index << ", " << i->neuron_index << "}";
-    // // }
-    // // std::cout << "\n";
-    // // std::cout<<"No. of marked neurons = "<<count<<std::endl;
-    // // std::cout<<"New_list mn size = "<<new_list_mn.size()<<std::endl;
-    std::vector<int > prev_comb;
-    // if(rec_con(net,prev_comb,count)){
-    if(rec_con(net,prev_comb,new_list_mn.size())){
-        return VERIFIED;
+    if(!concurrent_flag){
+        size_t loop_counter = 0;
+        while(loop_counter < loop_upper_bound){
+            std::cout<<"refine loop"<<std::endl;
+            bool is_ce = run_milp_mark_with_milp_refine(net);
+            int cntr=0;
+            if(is_ce){
+                std::cout<<"here in is_ce"<<std::endl;
+                return FAILED;
+            }
+            else{
+                bool is_image_verified = is_image_verified_by_milp(net);
+                // bool is_image_verified = concurrent_exec(net);
+                std::cout<<"is image verified "<<is_image_verified<<std::endl;
+                if(is_image_verified){
+                return VERIFIED;
+                }
+            }
+            loop_counter++;
+            ITER_COUNTS += 1;
+        }
     }
     else{
-        return FAILED;
-    }
-    return UNKNOWN;
+        bool is_ce = run_milp_mark_with_milp_refine(net);
+        if(is_ce){
+            return FAILED;
+        }
+        // // std::set<std::pair<int, int>> pairs = {
+        // // {0,29},{0,32},{0,40},{0,41},{0,25},{0,15},{0,1},{0,24},{0,11},{0,39},{0,16},{2,22},{2,28},{2,7},{2,15},{2,35},
+        // // };
+        // // new_list_mn.clear();
+        // // int count=0;
+        // // for(size_t i=0; i<net->layer_vec.size();i++){
+        // //     Layer_t* layer = net->layer_vec[i];
+        // //     if(layer->is_activation){
+        // //         continue;
+        // //     }
+        // //     for(size_t j=0; j< layer->dims; j++){
+        // //         Neuron_t* nt = layer->neurons[j];
+        // //         if(pairs.count({i,j})!=0){
+        // //             nt->is_marked=1;
+        // //             new_list_mn.push_back(nt);
+        // //         }
+        // //     }
+        // // }
+        // // std::cout<<"new_list_mn"<<std::endl;
+        // // for (auto i:new_list_mn){
+        // //     std::cout << "{" << i->layer_index << ", " << i->neuron_index << "}";
+        // // }
+        // // std::cout << "\n";
+        // // std::cout<<"No. of marked neurons = "<<count<<std::endl;
+        // // std::cout<<"New_list mn size = "<<new_list_mn.size()<<std::endl;
+        std::vector<int > prev_comb;
+        // if(rec_con(net,prev_comb,count)){
+        if(rec_con(net,prev_comb,new_list_mn.size())){
+            return VERIFIED;
+        }
+        else{
+            return FAILED;
+        }
+        return UNKNOWN;
+        }
+        // std::cout<<"start"<<std::endl;
+    
 }
 
 // drefine_status run_refine_poly_for_one_task(Network_t* net, std::chrono::_V2::system_clock::time_point start_time){
