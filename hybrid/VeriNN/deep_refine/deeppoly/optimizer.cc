@@ -115,6 +115,7 @@ GRBModel create_env_model_constr(Network_t* net, std::vector<GRBVar>& var_vector
     }
     return model;
 }
+<<<<<<< HEAD
 // bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int>activations){
 //     // model.update();
 //     // model.write("debug_original.lp");
@@ -169,6 +170,62 @@ GRBModel create_env_model_constr(Network_t* net, std::vector<GRBVar>& var_vector
 //     if(is_first){
 //         // std::cout<<"MILP error with ("<<net->actual_label<<","<<counter_class_index<<"): "<<-obj_val<<std::endl;
 //         // std::cout<<"inside is first"<<std::endl;
+=======
+bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int>activations){
+    // model.update();
+    // model.write("debug_original.lp");
+    if(terminate_flag==1){
+        pthread_exit(NULL);
+    }
+    Layer_t* layer = net->layer_vec.back();
+    size_t actual_class_var_index  = get_gurobi_var_index(layer, net->actual_label);
+    size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
+    // GRBLinExpr grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
+    // std::cout<<"verify before opti"<<std::endl;
+    size_t index=get_gurobi_var_index(layer, 0);
+    GRBLinExpr grb_obj =  Configuration_deeppoly::confidence_val*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+    model.setObjective(grb_obj, GRB_MINIMIZE);
+    model.optimize();
+    // std::cout<<"vrif after opti"<<std::endl;
+    int cnt=0;
+    if(model.get(GRB_IntAttr_Status) != GRB_OPTIMAL){
+        // std::cout<<"here not opti"<<std::endl;
+        return true;
+    }
+    double obj_val;
+    try
+    {
+        // code that could cause exception
+        obj_val = model.get(GRB_DoubleAttr_ObjVal);
+    }
+    catch (const GRBException &exc)
+    {
+        // catch anything thrown within try block that derives from std::exception
+        cnt++;
+        std::cerr << exc.getMessage();
+    }
+    // double obj_val = model.get(GRB_DoubleAttr_ObjVal);
+    // std::cout<<"after obj_val"<<std::endl;
+    if(obj_val > 0){
+        // std::cout<<"returnong true in obj_val"<<std::endl;
+        return true;
+    }
+    // std::cout<<"cnt----------------------------------------"<<cnt<<std::endl;
+    // std::cout<<var_vector[actual_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[actual_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
+    // std::cout<<var_vector[counter_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
+    if(terminate_flag==1){
+        pthread_exit(NULL);
+    }
+    // std::cout<<"here for blood -- "<<pthread_self()<<std::endl;
+    pthread_mutex_lock(&lcked);
+    if(terminate_flag==1){
+        pthread_mutex_unlock(&lcked);
+        pthread_exit(NULL);
+    }
+    if(is_first){
+        // std::cout<<"MILP error with ("<<net->actual_label<<","<<counter_class_index<<"): "<<-obj_val<<std::endl;
+        // std::cout<<"inside is first"<<std::endl;
+>>>>>>> 0841a1879428fac52154bc235d15e49f43bfb250
         
 //         Neuron_t* nt_actual = layer->neurons[net->actual_label];
 //         Neuron_t* nt_counter = layer->neurons[counter_class_index];
@@ -212,6 +269,7 @@ bool verify_by_milp(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_ve
     size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
     GRBLinExpr grb_obj;
     size_t index=get_gurobi_var_index(layer, 0);
+<<<<<<< HEAD
     if(!concurrent_flag){
         grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
     }
@@ -220,6 +278,9 @@ bool verify_by_milp(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_ve
         grb_obj =  0.95*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
     }
     
+=======
+    GRBLinExpr grb_obj =  Configuration_deeppoly::confidence_val*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+>>>>>>> 0841a1879428fac52154bc235d15e49f43bfb250
     model.setObjective(grb_obj, GRB_MINIMIZE);
     model.optimize();
     // model.computeIIS();
