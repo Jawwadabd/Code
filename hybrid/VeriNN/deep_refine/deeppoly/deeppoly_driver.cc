@@ -2,6 +2,7 @@
 #include "deeppoly_configuration.hh"
 #include "parser.hh"
 #include "analysis.hh"
+#include "../src/lib/drefine_driver.hh"
 //#include "vnnlib.hh"
 /*
 int main(int argc, char* argv[]){
@@ -21,6 +22,8 @@ int main(int argc, char* argv[]){
 
 int deeppoly_set_params(int argc, char* argv[]){
     Configuration_deeppoly::init_options(argc, argv);
+    if(IS_CONF_CE)
+        CONFIDENCE_OF_CE = Configuration_deeppoly::confidence_val;
     if(Configuration_deeppoly::vm.count("help")){
         return 1;
     }
@@ -77,7 +80,7 @@ VnnLib_t* parse_vnnlib(std::string& file_path){
     return verinn_lib;
 }
 
-bool is_image_verified_deeppoly(Network_t* net){
-    bool is_verif = is_image_verified(net);
-    return is_verif;
-}
+// bool is_image_verified_deeppoly(Network_t* net){
+//     bool is_verif = is_image_verified(net);
+//     return is_verif;
+// }

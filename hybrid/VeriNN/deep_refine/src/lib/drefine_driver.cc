@@ -17,6 +17,8 @@ size_t ITER_COUNTS = 0; //to count the number cegar iterations
 size_t SUB_PROB_COUNTS = 0; // to count the number of sub problems when input_split on
 size_t NUM_MARKED_NEURONS = 0;
 bool concurrent_flag=1;
+bool IS_CONF_CE=1;
+double CONFIDENCE_OF_CE;
 int run_refine_poly(int num_args, char* params[]){
     int is_help = deeppoly_set_params(num_args, params);
     if(is_help || (!is_valid_dataset())){

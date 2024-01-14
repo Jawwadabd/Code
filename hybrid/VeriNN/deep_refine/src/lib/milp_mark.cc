@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include<map>
 #include "../../parallelization/concurrent_run.hh"
+#include "drefine_driver.hh"
 
 
 // bool run_milp_mark_with_milp_refine_mine(Network_t* net){
@@ -347,7 +348,36 @@ bool is_sat_val_ce(Network_t* net){
     auto pred_label = xt::argmax(net->layer_vec.back()->res);
     net->pred_label = pred_label[0];
     if(net->actual_label != net->pred_label){
-        std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
+        Layer_t* last_layer = net->layer_vec.back();
+        double sum_out = 0;
+        for(size_t i=0; i<net->output_dim; i++){
+            sum_out += last_layer->res[i];
+        }
+        int i=net->pred_label;
+        double conf = (last_layer->res[i])/sum_out;
+        if(IS_CONF_CE){
+            // for(size_t i=0; i<net->output_dim; i++){
+                // if(i != net->actual_label){
+                    // int i=net->pred_label;
+                    // double conf = (last_layer->res[i])/sum_out;
+                    if(conf >= CONFIDENCE_OF_CE){
+                        // net->ce_im_conf = conf;
+                        // IFVERBOSE(
+                            std::cout<<"CE confidence - "<<conf<<std::endl;
+                            // for(size_t i=0; i<net->input_dim; i++){
+                            //     std::cout<<net->input_layer->res[i]<<",";
+                            // }
+                            // std::cout<<std::endl;
+                        // );
+                        std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
+                        return true;
+                    }
+                // }
+            // }
+            std::cout<<"Concrete confidence: "<<conf*100<<std::endl;
+            return false;
+        }
+        
         return true;
     }
     return false;

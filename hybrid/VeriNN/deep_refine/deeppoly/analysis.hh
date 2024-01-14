@@ -48,6 +48,6 @@ bool is_rel_prop_sat(Network_t* net, Basic_post_cond_t* basic_cond);
 void print_xt_array(xt::xarray<double> x_arr, size_t size);
 std::vector<size_t> get_max_elems_indexes_vec(Network_t* net, std::vector<double>& vec);
 bool is_val_exist_in_vec_double(double val, std::vector<double>& vec);
-
+bool is_image_verified_deeppoly(Network_t* net);
 
 #endif

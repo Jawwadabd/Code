@@ -2,6 +2,20 @@
 #include "../deeppoly/optimizer.hh"
 #include "../src/lib/milp_mark.hh"
 #include "parallel_fns.hh"
+void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector,size_t counter_class_index){
+    Layer_t* layer = net->layer_vec.back();
+    size_t index=get_gurobi_var_index(layer, 0);
+    size_t actual_class_var_index  = get_gurobi_var_index(layer, net->actual_label);
+    size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
+    double deno_sum=0;
+    for (int i=0;i<=9;i++){
+        // std::cout<<var_vector[index+i].get(GRB_DoubleAttr_X)<<std::endl;
+        deno_sum+=var_vector[index+i].get(GRB_DoubleAttr_X);
+    }
+    double conf = var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)/deno_sum;
+    std::cout<<"Abstract Confidence is " << conf*100<<std::endl;
+}
+
 bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int>activations){
     // model.update();
     // model.write("debug_original.lp");
@@ -11,10 +25,17 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
     Layer_t* layer = net->layer_vec.back();
     size_t actual_class_var_index  = get_gurobi_var_index(layer, net->actual_label);
     size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
-    // GRBLinExpr grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
+    GRBLinExpr grb_obj;
+    if(!IS_CONF_CE){
+        grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
+    }
+    else{
+        size_t index=get_gurobi_var_index(layer, 0);
+        grb_obj =  CONFIDENCE_OF_CE*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+    }
+    
     // std::cout<<"verify before opti"<<std::endl;
-    size_t index=get_gurobi_var_index(layer, 0);
-    GRBLinExpr grb_obj =  0.95*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+    
     model.setObjective(grb_obj, GRB_MINIMIZE);
     model.optimize();
     // std::cout<<"vrif after opti"<<std::endl;
@@ -44,6 +65,7 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
     // std::cout<<"cnt----------------------------------------"<<cnt<<std::endl;
     // std::cout<<var_vector[actual_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[actual_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
     // std::cout<<var_vector[counter_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
+    print_conf(net,model,var_vector,counter_class_index);
     if(terminate_flag==1){
         pthread_exit(NULL);
     }

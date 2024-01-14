@@ -6,6 +6,64 @@
 #include<thread>
 #include<unordered_set>
 
+bool is_no_ce_with_conf(Network_t* net){
+    bool is_verified = true;
+    Layer_t* out_layer = net->layer_vec.back();
+    double denominator = 0.0;
+    for(size_t i=0; i<net->output_dim; i++){
+        double lb = -out_layer->neurons[i]->lb;
+        denominator += lb;
+    }
+    denominator = CONFIDENCE_OF_CE*denominator;
+
+    // if(IS_TARGET_CE){
+    //     double ub = out_layer->neurons[TARGET_CLASS]->ub;
+    //     return denominator > ub;
+    // }
+
+    for(size_t i=0; i<net->output_dim; i++){
+        if(i != net->actual_label){
+            double ub = out_layer->neurons[i]->ub;
+            std::cout<<"Dim: "<<i<<" , error: "<<(ub - denominator)<<std::endl;
+            if(denominator > ub){
+                net->verified_out_dims.push_back(i);
+            }
+            else{
+                is_verified = false;
+            }
+        }
+    }
+
+    return is_verified;
+}
+
+bool is_image_verified_deeppoly(Network_t* net){
+    bool is_verified = true;
+    if(IS_CONF_CE){
+        is_verified = is_no_ce_with_conf(net);
+        return is_verified;
+    }
+    for(size_t i=0; i<net->output_dim; i++){
+        if(i != net->actual_label){
+            bool is_already_verified = false;
+            for(size_t val : net->verified_out_dims){
+                if(val == i){
+                    is_already_verified = true;
+                }
+            }
+            if(!is_already_verified){
+                if(is_greater(net, net->actual_label, i, true)){
+                    net->verified_out_dims.push_back(i);
+                }
+                else{
+                    is_verified = false;
+                }
+            }
+        }
+    }
+    return is_verified;
+}
+
 bool forward_analysis(Network_t* net){
     bool is_verified = false;
     for(auto layer:net->layer_vec){
@@ -43,6 +101,7 @@ bool forward_analysis(Network_t* net){
         is_verified = !is_sat;
     }
     else{
+        // is_verified = is_image_verified_deeppoly(net);
         is_verified = is_image_verified(net);
     }
     return is_verified;
@@ -679,7 +738,20 @@ bool is_greater(Network_t* net, size_t index1, size_t index2, bool is_stricly_gr
     Layer_t* out_layer = net->layer_vec.back();
     Neuron_t* nt1 = out_layer->neurons[index1];
     Neuron_t* nt2 = out_layer->neurons[index2];
+    if(IS_CONF_CE){
+
+        double denominator = 0.0;
+        for(size_t i=0; i<net->output_dim; i++){
+            double lb = -out_layer->neurons[i]->lb;
+            denominator += lb;
+        }
+        denominator = CONFIDENCE_OF_CE*denominator;
+        return denominator>nt2->ub;
+
+    }
+    
     Layer_t* pred_layer = new Layer_t();
+   
     pred_layer->neurons = {nt1, nt2};
     pred_layer->dims = 2;
     pred_layer->layer_index = out_layer->layer_index;
