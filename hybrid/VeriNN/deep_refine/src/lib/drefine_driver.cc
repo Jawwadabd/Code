@@ -19,6 +19,7 @@ size_t NUM_MARKED_NEURONS = 0;
 bool concurrent_flag=1;
 bool IS_CONF_CE=1;
 double CONFIDENCE_OF_CE;
+double concrete_conf=0;
 int run_refine_poly(int num_args, char* params[]){
     int is_help = deeppoly_set_params(num_args, params);
     if(is_help || (!is_valid_dataset())){
@@ -619,9 +620,9 @@ void print_status_string(Network_t* net, size_t tool_status, std::string tool_na
     if(base_prp_name == ""){
         base_prp_name = "null";
     }
-    std::string str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+","+std::to_string(image_index)+","+std::to_string(net->pred_label)+","+base_prp_name+","+status_string+","+tool_name+","+std::to_string(SUB_PROB_COUNTS)+","+std::to_string(ITER_COUNTS)+","+std::to_string(NUM_MARKED_NEURONS)+","+std::to_string(duration.count())+","+std::to_string(Configuration_deeppoly::confidence_val);
+    std::string str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+","+std::to_string(image_index)+","+std::to_string(net->pred_label)+","+base_prp_name+","+status_string+","+tool_name+","+std::to_string(SUB_PROB_COUNTS)+","+std::to_string(ITER_COUNTS)+","+std::to_string(NUM_MARKED_NEURONS)+","+std::to_string(duration.count())+","+std::to_string(Configuration_deeppoly::confidence_val)+","+std::to_string(concrete_conf);
     write_to_file(Configuration_deeppoly::result_file, str);
-    str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+",image_index="+std::to_string(image_index)+",image_label="+std::to_string(net->pred_label)+",prop_name="+base_prp_name+","+status_string+","+tool_name+",num_sub_prob="+std::to_string(SUB_PROB_COUNTS)+",num_cegar_iterations:"+std::to_string(ITER_COUNTS)+",num_marked_neurons="+std::to_string(NUM_MARKED_NEURONS)+",total_time="+std::to_string(duration.count())+",confidence_val="+std::to_string(Configuration_deeppoly::confidence_val);
+    str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+",image_index="+std::to_string(image_index)+",image_label="+std::to_string(net->pred_label)+",prop_name="+base_prp_name+","+status_string+","+tool_name+",num_sub_prob="+std::to_string(SUB_PROB_COUNTS)+",num_cegar_iterations:"+std::to_string(ITER_COUNTS)+",num_marked_neurons="+std::to_string(NUM_MARKED_NEURONS)+",total_time="+std::to_string(duration.count())+",confidence_val="+std::to_string(Configuration_deeppoly::confidence_val)+",concrete_conf="+std::to_string(concrete_conf);
     std::cout<<str<<std::endl;
 }
 
