@@ -3,6 +3,7 @@
 #include "deeppoly_configuration.hh"
 #include "../src/lib/milp_mark.hh"
 #include "../parallelization/concurrent_run.hh"
+#include "../parallelization/parallel_fns.hh"
 #include <pthread.h>
 
 
@@ -287,6 +288,7 @@ bool verify_by_milp(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_ve
     }
     net->index_vs_err[counter_class_index] = -obj_val;
     // std::cout<<"verif end"<<std::endl;
+    // print_conf(net,model,var_vector,counter_class_index);
     return false;
 } 
 

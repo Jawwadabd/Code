@@ -23,6 +23,7 @@ void analyse(Network_t* net, std::string &image_path){
     size_t num_test = 1;
     size_t verified_counter = 0;
     size_t image_counter = 0;
+    // std::cout<<"here in fpn"<<std::endl;
     for(size_t i=1; i <= num_test; i++){
         if( i != 3){
             //continue;
@@ -31,11 +32,13 @@ void analyse(Network_t* net, std::string &image_path){
         parse_input_image(net, image_path, i);
         net->forward_propgate_network(0, net->input_layer->res);
         auto pred_label = xt::argmax(net->layer_vec.back()->res);
+        std::cout<<"here in fpn"<<std::endl;
         net->pred_label = pred_label[0];
         if(net->actual_label != net->pred_label){
             std::cout<<"Predicted, actual label: ("<<net->pred_label<<","<<net->actual_label<<")"<<", network predicted wrong output"<<std::endl;
         }
         else{
+            
             reset_network(net);
             //mark_layer_and_neurons(net->layer_vec[2]);
             create_input_layer_expr(net);
