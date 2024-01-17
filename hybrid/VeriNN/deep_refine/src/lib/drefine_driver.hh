@@ -43,4 +43,5 @@ extern size_t ITER_COUNTS;
 extern bool concurrent_flag;
 extern bool IS_CONF_CE;
 extern double CONFIDENCE_OF_CE;
+extern double concrete_conf;
 #endif

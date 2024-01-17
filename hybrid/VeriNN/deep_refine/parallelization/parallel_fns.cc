@@ -13,7 +13,7 @@ void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector
         deno_sum+=var_vector[index+i].get(GRB_DoubleAttr_X);
     }
     double conf = var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)/deno_sum;
-    std::cout<<"Abstract Confidence is " << conf*100<<std::endl;
+    // std::cout<<"Abstract Confidence is " << conf*100<<std::endl;
 }
 
 bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector, size_t counter_class_index, bool is_first,std::vector<int>activations){
