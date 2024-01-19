@@ -11,7 +11,7 @@ set(ENV{GUROBI_HOME} "${GUROBI_HOME}")
 set(BOOST_ROOT "${BOOST_DIR}/installed")
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 set(DEEPPOLY_DIR ${PROJECT_SOURCE_DIR}/deeppoly)
-
+set(CONC_DIR ${PROJECT_SOURCE_DIR}/parallelization)
 
 
 set(OPENBLAS_LIB openblas)
@@ -130,7 +130,7 @@ message("LIBS Path: ${LIBS}")
 
 ADD_DEFINITIONS(-std=c++14 -Wall)
 
-SET(SOURCES ${SRC_DIR}/main.cpp ${SRC_DIR}/lib/drefine_driver.cc ${SRC_DIR}/lib/pullback.cc ${SRC_DIR}/lib/decision_making.cc ${SRC_DIR}/lib/milp_refine.cc ${SRC_DIR}/lib/milp_mark.cc ${DEEPPOLY_DIR}/analysis.cc ${DEEPPOLY_DIR}/deeppoly_configuration.cc ${DEEPPOLY_DIR}/deeppoly_driver.cc ${DEEPPOLY_DIR}/helper.cc ${DEEPPOLY_DIR}/interval.cc ${DEEPPOLY_DIR}/network.cc ${DEEPPOLY_DIR}/optimizer.cc ${DEEPPOLY_DIR}/parser.cc ${DEEPPOLY_DIR}/vnnlib.cc)
+SET(SOURCES ${SRC_DIR}/main.cpp ${SRC_DIR}/lib/drefine_driver.cc ${SRC_DIR}/lib/pullback.cc ${SRC_DIR}/lib/decision_making.cc ${SRC_DIR}/lib/milp_refine.cc ${SRC_DIR}/lib/milp_mark.cc ${DEEPPOLY_DIR}/analysis.cc ${DEEPPOLY_DIR}/deeppoly_configuration.cc ${DEEPPOLY_DIR}/deeppoly_driver.cc ${DEEPPOLY_DIR}/helper.cc ${DEEPPOLY_DIR}/interval.cc ${DEEPPOLY_DIR}/network.cc ${DEEPPOLY_DIR}/optimizer.cc ${DEEPPOLY_DIR}/parser.cc ${DEEPPOLY_DIR}/vnnlib.cc ${CONC_DIR}/concurrent_run.cc ${CONC_DIR}/parallel_fns.cc)
 add_executable(${DREFINE} ${SOURCES})
 
 
