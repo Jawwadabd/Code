@@ -369,7 +369,7 @@ bool is_sat_val_ce(Network_t* net){
                             // }
                             // std::cout<<std::endl;
                         // );
-                        concrete_conf=conf;
+                        // concrete_conf=conf;
                         std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
                         return true;
                     }
