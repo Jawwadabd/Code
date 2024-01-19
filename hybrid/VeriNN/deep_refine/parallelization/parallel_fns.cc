@@ -9,7 +9,7 @@ void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector
     size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
     double deno_sum=0;
     for (int i=0;i<=9;i++){
-        // std::cout<<var_vector[index+i].get(GRB_DoubleAttr_X)<<std::endl;
+        std::cout<<var_vector[index+i].get(GRB_DoubleAttr_X)<<std::endl;
         deno_sum+=var_vector[index+i].get(GRB_DoubleAttr_X);
     }
     double conf = var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)/deno_sum;
@@ -65,7 +65,7 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
     // std::cout<<"cnt----------------------------------------"<<cnt<<std::endl;
     // std::cout<<var_vector[actual_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[actual_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
     // std::cout<<var_vector[counter_class_var_index].get(GRB_StringAttr_VarName)<<" "<<var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)<<std::endl;
-    print_conf(net,model,var_vector,counter_class_index);
+    // print_conf(net,model,var_vector,counter_class_index);
     if(terminate_flag==1){
         pthread_exit(NULL);
     }
