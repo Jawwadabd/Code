@@ -440,3 +440,5 @@ mnist_relu_3_50.tf,0.050000,24,4,null,verified,drefine,1,7,40,217
 mnist_relu_3_50.tf,0.050000,2,6,null,failed,drefine,1,0,5,0
 mnist_relu_3_50.tf,0.050000,4,4,null,verified,drefine,1,0,5,0
 mnist_relu_3_50.tf,0.050000,6,8,null,failed,drefine,1,0,5,0
+ffnnRELU__PGDK_w_0.1_6_500.tf,0.005000,48,4,null,verified,deeppoly,1,0,0,19,0.600000,1.000000
+mnist_relu_4_1024.tf,0.005000,0,7,null,verified,deeppoly,1,0,0,51,0.600000,0.560435

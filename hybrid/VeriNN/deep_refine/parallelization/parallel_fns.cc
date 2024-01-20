@@ -26,18 +26,25 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
     size_t actual_class_var_index  = get_gurobi_var_index(layer, net->actual_label);
     size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
     GRBLinExpr grb_obj;
+    std::string extra_cons="extra_cons";
     if(!IS_CONF_CE){
         grb_obj = var_vector[actual_class_var_index] - var_vector[counter_class_var_index];
     }
     else{
         size_t index=get_gurobi_var_index(layer, 0);
         grb_obj =  CONFIDENCE_OF_CE*(var_vector[index]+var_vector[index+1]+var_vector[index+2]+var_vector[index+3]+var_vector[index+4]+var_vector[index+5]+var_vector[index+6]+var_vector[index+7]+var_vector[index+8]+var_vector[index+9]) - var_vector[counter_class_var_index] ;
+        model.addConstr(var_vector[counter_class_var_index]-var_vector[actual_class_var_index],GRB_GREATER_EQUAL,0,extra_cons);
     }
     
     // std::cout<<"verify before opti"<<std::endl;
     
     model.setObjective(grb_obj, GRB_MINIMIZE);
     model.optimize();
+    if(IS_CONF_CE)
+    {
+        auto temp = model.getConstrByName(extra_cons);
+        model.remove(temp);
+    }
     // std::cout<<"vrif after opti"<<std::endl;
     int cnt=0;
     if(model.get(GRB_IntAttr_Status) != GRB_OPTIMAL){

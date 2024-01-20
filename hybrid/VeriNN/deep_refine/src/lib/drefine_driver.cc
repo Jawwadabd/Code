@@ -76,7 +76,7 @@ bool is_actual_and_pred_label_same(Network_t* net, size_t image_index){
     
     double sum=0;
     for(int i=0;i<net->layer_vec.back()->res.size();i++){
-        sum+=net->layer_vec.back()->res[i];
+        sum+=net->layer_vec.back()->res[i]<0?0:net->layer_vec.back()->res[i];
     }
     og_conf= net->layer_vec.back()->res[net->pred_label]/sum;
     std::cout<<"original confidence  = "<<og_conf<<std::endl;

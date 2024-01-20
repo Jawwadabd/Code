@@ -746,7 +746,7 @@ bool is_greater(Network_t* net, size_t index1, size_t index2, bool is_stricly_gr
             denominator += lb;
         }
         denominator = CONFIDENCE_OF_CE*denominator;
-        return denominator>nt2->ub;
+        return (denominator>nt2->ub) || (-nt1->lb > nt2->ub);
 
     }
     
