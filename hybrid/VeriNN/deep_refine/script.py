@@ -13,6 +13,7 @@ import csv
 import sys
 import time
 import random
+import pandas as pd
 
 NUM_CPU = 7
 TIMEOUT = 2000
@@ -262,7 +263,20 @@ def get_task_from_file_random():
         tasks.append([net_name, ep, image_index])
 
     return tasks
-
+def set_diff(tasks):
+    csv_file_path = 'outfiles/wrong_order.csv'
+    df1 = pd.read_csv(csv_file_path, header=None)
+    columns_list = [0, 1, 2, 3]
+    df2 = pd.DataFrame(tasks)
+    match_columns_indices_df1 = [0, 1, 2, 11]
+    match_columns_indices_df2 = [0, 1, 2, 3]
+    df1['hash'] = df1.iloc[:, match_columns_indices_df1].apply(lambda x: hash(tuple(x)), axis=1)
+    df2['hash'] = df2.iloc[:, match_columns_indices_df2].apply(lambda x: hash(tuple(x)), axis=1)
+    hash_set_df1 = set(df1['hash'])
+    hash_set_df2 = set(df2['hash'])
+    non_matching_df2 = df2[~df2['hash'].isin(hash_set_df1)].drop(columns=['hash'])
+    result_list_of_lists = non_matching_df2.values.tolist()
+    return result_list_of_lists
 
 def get_all_tasks():
     tasks = []
@@ -274,16 +288,19 @@ def get_all_tasks():
     NETWORK_FILE += ["mnist_relu_9_100.tf", "mnist_relu_9_200.tf"]
     NETWORK_FILE += ["ffnnRELU__Point_6_500.tf", "ffnnRELU__PGDK_w_0.1_6_500.tf", "ffnnRELU__PGDK_w_0.3_6_500.tf"]
 
-    epsilons = [0.005,0.01,0.015,0.02,0.025,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1]
-    
-    confidence_vals=[0.60,0.70,0.80,0.90,0.95,1]
+    # epsilons = [0.005,0.01,0.015,0.02,0.025,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1]
+    epsilons = [0.005,0.06]
+    confidence_vals=[0,0.40,0.60]
 
-    for ep in epsilons:
+    for image_index in range(NUM_IMAGES):
         for nt in NETWORK_FILE:
-            for image_index in range(NUM_IMAGES):
+            for ep in epsilons:
                 for cf in confidence_vals:
                     tasks.append([nt, ep, image_index,cf])
-
+    # print(len(tasks))
+    # tasks = set_diff(tasks)
+    # print(len(tasks))
+    # print(tasks)
     return tasks
 
 def print_cmnds_all(num_cpu, log_dir):
@@ -316,7 +333,7 @@ def print_cmnds_all(num_cpu, log_dir):
             image_index = l[2]
             confidence = l[3]
             net_path = os.path.join(net_dir, net_name+".tf")
-            log_file = net_name+"+"+str(image_index)+"+"+str(ep)
+            log_file = net_name+"+"+str(image_index)+"+"+str(ep)+"+"+str(confidence)
             log_file = os.path.join(log_dir, log_file)
             result_file = os.path.join(result_dir, f"file_{idx}.txt")
             command = f"taskset --cpu-list {num_cores*idx}-{(num_cores*idx)+(num_cores -1)} timeout -k 2s {TIMEOUT} {TOOL} --tool {tool_name} --network {net_path} --dataset-file {dataset_file} --image-index {image_index} --epsilon {ep} --dataset {DATASET}  --result-file {result_file} --confidence {confidence} >> {log_file}"
