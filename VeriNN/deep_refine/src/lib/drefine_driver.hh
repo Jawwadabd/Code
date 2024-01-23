@@ -41,7 +41,4 @@ drefine_status run_milp_refine_with_milp_mark_input_split(Network_t* net);
 // bool run_milp_refine_with_milp_mark_input_split_mine(Network_t* net);
 extern size_t ITER_COUNTS;
 extern bool concurrent_flag;
-extern bool IS_CONF_CE;
-extern double CONFIDENCE_OF_CE;
-extern double concrete_conf;
 #endif

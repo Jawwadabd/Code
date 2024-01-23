@@ -14,7 +14,7 @@ bool is_no_ce_with_conf(Network_t* net){
         double lb = -out_layer->neurons[i]->lb;
         denominator += lb;
     }
-    denominator = CONFIDENCE_OF_CE*denominator;
+    denominator = Configuration_deeppoly::conf_val*denominator;
 
     // if(IS_TARGET_CE){
     //     double ub = out_layer->neurons[TARGET_CLASS]->ub;
@@ -39,7 +39,7 @@ bool is_no_ce_with_conf(Network_t* net){
 
 bool is_image_verified_deeppoly(Network_t* net){
     bool is_verified = true;
-    if(IS_CONF_CE){
+    if(Configuration_deeppoly::is_conf_ce){
         is_verified = is_no_ce_with_conf(net);
         return is_verified;
     }
@@ -738,14 +738,14 @@ bool is_greater(Network_t* net, size_t index1, size_t index2, bool is_stricly_gr
     Layer_t* out_layer = net->layer_vec.back();
     Neuron_t* nt1 = out_layer->neurons[index1];
     Neuron_t* nt2 = out_layer->neurons[index2];
-    if(IS_CONF_CE){
+    if(Configuration_deeppoly::is_conf_ce){
 
         double denominator = 0.0;
         for(size_t i=0; i<net->output_dim; i++){
             double lb = -out_layer->neurons[i]->lb;
             denominator += lb;
         }
-        denominator = CONFIDENCE_OF_CE*denominator;
+        denominator = Configuration_deeppoly::conf_val*denominator;
         return (denominator>nt2->ub) || (-nt1->lb > nt2->ub);
 
     }

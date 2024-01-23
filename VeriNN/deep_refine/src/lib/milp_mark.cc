@@ -355,12 +355,12 @@ bool is_sat_val_ce(Network_t* net){
         }
         int i=net->pred_label;
         double conf = (last_layer->res[i])/sum_out;
-        if(IS_CONF_CE){
+        if(Configuration_deeppoly::is_conf_ce){
             // for(size_t i=0; i<net->output_dim; i++){
                 // if(i != net->actual_label){
                     // int i=net->pred_label;
                     // double conf = (last_layer->res[i])/sum_out;
-                    if(conf >= CONFIDENCE_OF_CE){
+                    if(conf >= Configuration_deeppoly::conf_val){
                         // net->ce_im_conf = conf;
                         // IFVERBOSE(
                             std::cout<<"CE confidence - "<<conf<<std::endl;

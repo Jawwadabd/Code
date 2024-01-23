@@ -22,8 +22,6 @@ int main(int argc, char* argv[]){
 
 int deeppoly_set_params(int argc, char* argv[]){
     Configuration_deeppoly::init_options(argc, argv);
-    if(IS_CONF_CE)
-        CONFIDENCE_OF_CE = Configuration_deeppoly::confidence_val;
     if(Configuration_deeppoly::vm.count("help")){
         return 1;
     }

@@ -30,9 +30,9 @@ namespace Configuration_deeppoly{
     std::string vnnlib_prp_file_path;
     bool is_input_split;
     bool is_conf_ce;
-    double confidence_val;
-    bool is_soft_conf_ce;
-    double soft_conf_value;
+    double conf_val;
+    bool is_softmax_conf_ce;
+    double softmax_conf_value;
 
     int init_options(int num_of_params, char* params[]){
         try{
@@ -53,9 +53,9 @@ namespace Configuration_deeppoly{
             ("vnnlib-prp-file,vnnlib", po::value<std::string>(&vnnlib_prp_file_path)->default_value(""), "vnnlib prp file path")
             ("is-input-split", po::value<bool>(&is_input_split)->default_value(false), "run with heuristic input space split")
             ("is-conf-ce", po::value<bool>(&is_conf_ce)->default_value(0), "Is run with confidence counter-example")
-            ("conf-val", po::value<double>(&confidence_val)->default_value(50), "Counter example confidence value")
-            ("is-soft-conf-ce", po::value<bool>(&is_soft_conf_ce)->default_value(0), "Is run with softmax confidence counter-example")
-            ("soft-conf-val", po::value<double>(&soft_conf_value)->default_value(50), "Counter example softmax confidence value")
+            ("conf-val", po::value<double>(&conf_val)->default_value(50), "Counter example confidence value")
+            ("is-soft-conf-ce", po::value<bool>(&is_softmax_conf_ce)->default_value(0), "Is run with softmax confidence counter-example")
+            ("soft-conf-val", po::value<double>(&softmax_conf_value)->default_value(50), "Counter example softmax confidence value")
             ;
             
             po::store(po::parse_command_line(num_of_params, params, desc), vm);

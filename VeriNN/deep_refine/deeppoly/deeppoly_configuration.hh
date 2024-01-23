@@ -62,9 +62,9 @@ namespace Configuration_deeppoly{
     extern std::string vnnlib_prp_file_path;
     extern bool is_input_split;
     extern bool is_conf_ce;
-    extern double confidence_val;
-    extern bool is_soft_conf_ce;
-    extern double soft_conf_value;
+    extern double conf_val;
+    extern bool is_softmax_conf_ce;
+    extern double softmax_conf_value;
 
 
 }
