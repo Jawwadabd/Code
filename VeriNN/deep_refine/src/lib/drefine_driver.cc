@@ -11,7 +11,7 @@
 #include<chrono>
 #include<queue>
 #include<bits/stdc++.h>
-#include "../../parallelization/concurrent_run.hh"
+#include "concurrent_run.hh"
 
 size_t ITER_COUNTS = 0; //to count the number cegar iterations
 size_t SUB_PROB_COUNTS = 0; // to count the number of sub problems when input_split on
@@ -287,7 +287,7 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
                 // bool is_image_verified = concurrent_exec(net);
                 std::cout<<"is image verified "<<is_image_verified<<std::endl;
                 if(is_image_verified){
-                return VERIFIED;
+                    return VERIFIED;
                 }
             }
             loop_counter++;
@@ -299,33 +299,7 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
         if(is_ce){
             return FAILED;
         }
-        // // std::set<std::pair<int, int>> pairs = {
-        // // {0,29},{0,32},{0,40},{0,41},{0,25},{0,15},{0,1},{0,24},{0,11},{0,39},{0,16},{2,22},{2,28},{2,7},{2,15},{2,35},
-        // // };
-        // // new_list_mn.clear();
-        // // int count=0;
-        // // for(size_t i=0; i<net->layer_vec.size();i++){
-        // //     Layer_t* layer = net->layer_vec[i];
-        // //     if(layer->is_activation){
-        // //         continue;
-        // //     }
-        // //     for(size_t j=0; j< layer->dims; j++){
-        // //         Neuron_t* nt = layer->neurons[j];
-        // //         if(pairs.count({i,j})!=0){
-        // //             nt->is_marked=1;
-        // //             new_list_mn.push_back(nt);
-        // //         }
-        // //     }
-        // // }
-        // // std::cout<<"new_list_mn"<<std::endl;
-        // // for (auto i:new_list_mn){
-        // //     std::cout << "{" << i->layer_index << ", " << i->neuron_index << "}";
-        // // }
-        // // std::cout << "\n";
-        // // std::cout<<"No. of marked neurons = "<<count<<std::endl;
-        // // std::cout<<"New_list mn size = "<<new_list_mn.size()<<std::endl;
         std::vector<int > prev_comb;
-        // if(rec_con(net,prev_comb,count)){
         if(rec_con(net,prev_comb,new_list_mn.size())){
             return VERIFIED;
         }
@@ -333,9 +307,8 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
             return FAILED;
         }
         return UNKNOWN;
-        }
-        // std::cout<<"start"<<std::endl;
-    
+    }
+    return UNKNOWN;
 }
 
 // drefine_status run_refine_poly_for_one_task(Network_t* net, std::chrono::_V2::system_clock::time_point start_time){
