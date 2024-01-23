@@ -64,8 +64,8 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
 
     std::cout<<"Optimizing in softmax constraint...."<<std::endl;
     model.optimize();
-
     int status = model.get(GRB_IntAttr_Status);
+    std::cout<<"Optimization status: "<<status<<std::endl;
     if(status == GRB_OPTIMAL){
         update_sat_vals(net, var_vec);
         return false;

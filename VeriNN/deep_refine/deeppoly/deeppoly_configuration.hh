@@ -21,7 +21,7 @@
 #define NUM_RANDOM_IMAGES 20
 #define MAX_NUM_MARKED_NEURONS 5
 #define MAX_INPUT_DIMS_TO_SPLIT 2
-#define NUM_THREADS 1
+#define NUM_THREADS 20
 
 enum drefine_status {FAILED, DEEPPOLY_VERIFIED, VERIFIED, UNKNOWN};
 enum concurr_status {is_verif,is_ce,is_spur_ce,unchecked};

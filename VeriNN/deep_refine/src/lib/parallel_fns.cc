@@ -193,7 +193,6 @@ bool is_layer_marked_mine(Network_t* net, Layer_t* start_layer){
     }
     
     //create_negate_property(model, var_vector, net, start_layer);
-
     var_counter = start_layer->pred_layer->dims;
     create_optimization_constraints_layer(start_layer, model, var_vector, var_counter);
     model.optimize();
@@ -270,7 +269,7 @@ bool is_layer_marked_mine(Network_t* net, Layer_t* start_layer){
 // }
 
 
-bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vec){  
+bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vec, std::vector<int>& activations){  
     Layer_t* out_layer = net->layer_vec.back();
     double l_max_var = -INFINITY;
     double u_max_var = -INFINITY;
@@ -335,10 +334,13 @@ bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::
         if(is_coun_ex){
             verif_result = false;
             terminate_flag = true;
+            // std::cout<<"real ce"<<std::endl;
             return false;
         }
         //spurius counter example
+        // std::cout<<"spurious ce"<<std::endl;
         is_refine=true;
+        refine_comb = activations;
         pthread_mutex_unlock(&lcked);
         return true;
     }

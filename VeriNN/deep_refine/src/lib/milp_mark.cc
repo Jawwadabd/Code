@@ -196,7 +196,7 @@ bool is_layer_marked(Network_t* net, Layer_t* start_layer){
     bool is_marked = false;
     int status = model.get(GRB_IntAttr_Status);
     std::map<Neuron_t*, double> nt_err_map;
-    // std::cout<<"dp-status==== "<<status<<std::endl;
+    std::cout<<"dp-status==== "<<status<<std::endl;
     if(status == GRB_OPTIMAL){
         // std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
         for(size_t i=0; i<start_layer->neurons.size(); i++){

@@ -21,7 +21,6 @@ std::vector<std::vector<int>> combs;
 Network_t *net1 = new Network_t();
 std::vector<bool> return_models;
 int next_marked_index = 0;
-size_t my_counter = 1;
 int relu_constr_mine(Layer_t *layer, GRBModel &model, std::vector<GRBVar> &var_vector, size_t var_counter, std::vector<int> &activations, int marked_index,std::vector<Neuron_t*> new_list_mn)
 {   
     if(terminate_flag==1){
@@ -48,9 +47,9 @@ int relu_constr_mine(Layer_t *layer, GRBModel &model, std::vector<GRBVar> &var_v
                     break;
                 }
             }
-            std::cout<<i<<","<<b<<std::endl;
-            std::cout<<new_list_mn.size()<<std::endl;
-            std::cout<<activations.size()<<std::endl;
+            // std::cout<<i<<","<<b<<std::endl;
+            // std::cout<<new_list_mn.size()<<std::endl;
+            // std::cout<<activations.size()<<std::endl;
             if (activations[b] == 1)
             {
                 GRBLinExpr grb_expr = var_vector[var_counter + i] - var_vector[var_counter + i - layer->pred_layer->dims];
@@ -93,8 +92,6 @@ bool add_constraint(Network_t *net, GRBModel &model, std::vector<GRBVar> &var_ve
         if (layer->is_activation)
         {
             // std::cout<<"relu called with index "<<index<<std::endl;
-            std::cout<<"Counter: "<<my_counter<<std::endl;
-            my_counter++;
             next_marked_index=relu_constr_mine(layer, model, var_vector, var_counter, activations,next_marked_index,new_list_mn);
             // create_relu_constr_milp_refine(layer, model, var_vector, var_counter);
         }
@@ -108,7 +105,7 @@ bool add_constraint(Network_t *net, GRBModel &model, std::vector<GRBVar> &var_ve
         var_counter += layer->dims;
     }
     if(Configuration_deeppoly::is_softmax_conf_ce){
-        return is_image_verified_softmax_concurrent(net, model, var_vector);
+        return is_image_verified_softmax_concurrent(net, model, var_vector, activations);
     }
     for (size_t i = 0; i < net->output_dim && verif_result != false; i++)
     // for (size_t i = 0; i < net->output_dim; i++)
@@ -200,11 +197,11 @@ void *multi_thread(void *p)
             break;
         }
         int index = i++;
-        std::cout<<"index: "<<index<<","<<new_list_mn.size()<<std::endl;
+        // std::cout<<"index: "<<index<<","<<new_list_mn.size()<<std::endl;
         pthread_mutex_unlock(&lck);
         // std::cout<<index <<"is being run by "<<std::this_thread::get_id()<<std::endl;
         std::vector<int> result = generateBinaryOutput(index, new_list_mn.size());
-        std::cout<<"result size"<<result.size()<<std::endl;
+        // std::cout<<"result size"<<result.size()<<std::endl;
         model_gen(result, index,net1,new_list_mn);
         // break;
     }
@@ -232,14 +229,15 @@ bool looper(Network_t *net){
                 pthread_join(thread_id[i], NULL);
                 // std::cout<<"JOIN_after\n";
         }
-        // std::cout<<"after join loop\n";
         if(verif_result==false){return false;}
         // std::cout<<"after verif result if\n";
+        std::cout<<"number of mark neurons: "<<new_list_mn.size()<<std::endl;
         if(is_refine==true)
         {
             if(new_list_mn.size()<10)
             {
                 run_milp_mark_with_milp_refine_mine(net);
+                std::cout<<"After refine....."<<std::endl;
                 ITER_COUNTS++;
                 is_refine=false;
             }
