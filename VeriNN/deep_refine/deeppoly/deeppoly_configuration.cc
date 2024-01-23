@@ -29,7 +29,11 @@ namespace Configuration_deeppoly{
     std::string tool;
     std::string vnnlib_prp_file_path;
     bool is_input_split;
+    bool is_conf_ce;
     double confidence_val;
+    bool is_soft_conf_ce;
+    double soft_conf_value;
+
     int init_options(int num_of_params, char* params[]){
         try{
             desc.add_options()
@@ -48,7 +52,10 @@ namespace Configuration_deeppoly{
             ("tool", po::value<std::string>(&tool)->default_value(default_tool), "tool name drefine/deeppoly")
             ("vnnlib-prp-file,vnnlib", po::value<std::string>(&vnnlib_prp_file_path)->default_value(""), "vnnlib prp file path")
             ("is-input-split", po::value<bool>(&is_input_split)->default_value(false), "run with heuristic input space split")
-            ("confidence", po::value<double>(&confidence_val)->default_value(50))
+            ("is-conf-ce", po::value<bool>(&is_conf_ce)->default_value(0), "Is run with confidence counter-example")
+            ("conf-val", po::value<double>(&confidence_val)->default_value(50), "Counter example confidence value")
+            ("is-soft-conf-ce", po::value<bool>(&is_soft_conf_ce)->default_value(0), "Is run with softmax confidence counter-example")
+            ("soft-conf-val", po::value<double>(&soft_conf_value)->default_value(50), "Counter example softmax confidence value")
             ;
             
             po::store(po::parse_command_line(num_of_params, params, desc), vm);
@@ -132,6 +139,33 @@ namespace Configuration_deeppoly{
                 std::cout<<"Is input split: False"<< std::endl;
             }
         }
+
+        if(vm.count("is-conf-ce")){
+            if(vm["is-conf-ce"].as<bool>()){
+                std::cout<<"Is confidence ce: True"<< std::endl;
+            }
+            else{
+                std::cout<<"Is confidence ce: False"<< std::endl;
+            }
+        }
+
+        if(vm.count("conf-val")){
+            std::cout<<"CE Confidence value: "<<vm["conf-val"].as<double>()<<std::endl;
+        }
+
+        if(vm.count("is-soft-conf-ce")){
+            if(vm["is-soft-conf-ce"].as<bool>()){
+                std::cout<<"Is softmax confidence ce: True"<< std::endl;
+            }
+            else{
+                std::cout<<"Is softmax confidence ce: False"<< std::endl;
+            }
+        }
+
+        if(vm.count("soft-conf-val")){
+            std::cout<<"CE Softmax Confidence value: "<<vm["soft-conf-val"].as<double>()<<std::endl;
+        }
+
 
         return 0;
     }
