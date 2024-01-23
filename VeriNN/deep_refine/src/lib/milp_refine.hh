@@ -9,4 +9,7 @@ void create_relu_constr_milp_refine(Layer_t* layer, GRBModel& model, std::vector
 void create_vars_layer(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& var_vector);
 void create_milp_constr_FC_without_marked(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& var_vector, size_t var_counter);
 bool is_prp_verified_by_milp(Network_t* net);
+bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vec);
+bool is_image_verified_softmax_deeppoly(Network_t* net);
+double get_umax_i(Layer_t* layer, size_t i);
 #endif

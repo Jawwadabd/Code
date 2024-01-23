@@ -7,6 +7,7 @@
 #include "../../deeppoly/optimizer.hh"
 #include "milp_mark.hh"
 #include "parallel_fns.hh"
+#include "../../deeppoly/analysis.hh"
 pthread_mutex_t lck;
 // pthread_mutex_t lck_model;
 volatile sig_atomic_t terminate_flag = 0;
@@ -20,6 +21,7 @@ std::vector<std::vector<int>> combs;
 Network_t *net1 = new Network_t();
 std::vector<bool> return_models;
 int next_marked_index = 0;
+size_t my_counter = 1;
 int relu_constr_mine(Layer_t *layer, GRBModel &model, std::vector<GRBVar> &var_vector, size_t var_counter, std::vector<int> &activations, int marked_index,std::vector<Neuron_t*> new_list_mn)
 {   
     if(terminate_flag==1){
@@ -46,6 +48,9 @@ int relu_constr_mine(Layer_t *layer, GRBModel &model, std::vector<GRBVar> &var_v
                     break;
                 }
             }
+            std::cout<<i<<","<<b<<std::endl;
+            std::cout<<new_list_mn.size()<<std::endl;
+            std::cout<<activations.size()<<std::endl;
             if (activations[b] == 1)
             {
                 GRBLinExpr grb_expr = var_vector[var_counter + i] - var_vector[var_counter + i - layer->pred_layer->dims];
@@ -88,6 +93,8 @@ bool add_constraint(Network_t *net, GRBModel &model, std::vector<GRBVar> &var_ve
         if (layer->is_activation)
         {
             // std::cout<<"relu called with index "<<index<<std::endl;
+            std::cout<<"Counter: "<<my_counter<<std::endl;
+            my_counter++;
             next_marked_index=relu_constr_mine(layer, model, var_vector, var_counter, activations,next_marked_index,new_list_mn);
             // create_relu_constr_milp_refine(layer, model, var_vector, var_counter);
         }
@@ -99,6 +106,9 @@ bool add_constraint(Network_t *net, GRBModel &model, std::vector<GRBVar> &var_ve
         }
 
         var_counter += layer->dims;
+    }
+    if(Configuration_deeppoly::is_softmax_conf_ce){
+        return is_image_verified_softmax_concurrent(net, model, var_vector);
     }
     for (size_t i = 0; i < net->output_dim && verif_result != false; i++)
     // for (size_t i = 0; i < net->output_dim; i++)
@@ -190,9 +200,11 @@ void *multi_thread(void *p)
             break;
         }
         int index = i++;
+        std::cout<<"index: "<<index<<","<<new_list_mn.size()<<std::endl;
         pthread_mutex_unlock(&lck);
         // std::cout<<index <<"is being run by "<<std::this_thread::get_id()<<std::endl;
         std::vector<int> result = generateBinaryOutput(index, new_list_mn.size());
+        std::cout<<"result size"<<result.size()<<std::endl;
         model_gen(result, index,net1,new_list_mn);
         // break;
     }

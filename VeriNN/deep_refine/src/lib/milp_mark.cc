@@ -48,7 +48,7 @@ bool run_milp_mark_with_milp_refine(Network_t* net){
         if(layer->is_activation){
             is_marked = is_layer_marked(net, layer);
             if(is_marked){
-                //std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
+                std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
                 break;
             }
         }
@@ -176,7 +176,7 @@ bool is_layer_marked(Network_t* net, Layer_t* start_layer){
     for(int layer_index = start_layer->layer_index; layer_index < numlayers; layer_index++){
         Layer_t* layer = net->layer_vec[layer_index];
         if(layer->is_activation){
-            create_relu_constr(layer, model, var_vector, var_counter);
+            // create_relu_constr(layer, model, var_vector, var_counter);
             create_relu_constr_milp_refine(layer, model, var_vector, var_counter);
             // std::cout<<"dp-New_list mn size = "<<new_list_mn.size()<<std::endl;
             // std::cout<<"dp-refine mn size = "<<refine_comb.size()<<std::endl;
@@ -331,18 +331,9 @@ void create_relu_constr(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& va
 
 bool is_sat_val_ce(Network_t* net){
     create_satvals_to_image(net->input_layer);
-    //std::cout<<net->input_layer->res[683]<<" "<<net->input_layer->res[684]<<std::endl;
     net->forward_propgate_network(0, net->input_layer->res);
     if(Configuration_deeppoly::vnnlib_prp_file_path != ""){
         bool is_sat = is_prop_sat_vnnlib(net);
-        // if(is_sat){
-        //     std::cout<<"input values"<<std::endl;
-        //     print_xt_array(net->input_layer->res, net->input_dim);
-        //     std::cout<<"Check...."<<std::endl;
-        //     std::cout<<net->input_layer->res[683]<<" "<<net->input_layer->res[684]<<std::endl;
-        //     std::cout<<"output values"<<std::endl;
-        //     print_xt_array(net->layer_vec.back()->res, net->output_dim);
-        // }
         return is_sat;
     }
     auto pred_label = xt::argmax(net->layer_vec.back()->res);
@@ -356,27 +347,24 @@ bool is_sat_val_ce(Network_t* net){
         int i=net->pred_label;
         double conf = (last_layer->res[i])/sum_out;
         if(Configuration_deeppoly::is_conf_ce){
-            // for(size_t i=0; i<net->output_dim; i++){
-                // if(i != net->actual_label){
-                    // int i=net->pred_label;
-                    // double conf = (last_layer->res[i])/sum_out;
-                    if(conf >= Configuration_deeppoly::conf_val){
-                        // net->ce_im_conf = conf;
-                        // IFVERBOSE(
-                            std::cout<<"CE confidence - "<<conf<<std::endl;
-                            // for(size_t i=0; i<net->input_dim; i++){
-                            //     std::cout<<net->input_layer->res[i]<<",";
-                            // }
-                            // std::cout<<std::endl;
-                        // );
-                        // concrete_conf=conf;
-                        std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
-                        return true;
-                    }
-                // }
-            // }
-            // std::cout<<"Concrete confidence: "<<conf*100<<std::endl;
+            if(conf >= Configuration_deeppoly::conf_val){
+                std::cout<<"CE confidence - "<<conf<<std::endl;    
+                std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
+                return true;
+            }
             return false;
+        }
+
+        double max_val = last_layer->res[net->pred_label];
+        if(Configuration_deeppoly::is_softmax_conf_ce){
+            for(size_t i=0; i<net->output_dim; i++){
+                if(i != net->pred_label){
+                    double val = last_layer->res[i];
+                    if(max_val < val + Configuration_deeppoly::softmax_conf_value){
+                        return false;
+                    }
+                }
+            }
         }
         
         return true;
@@ -395,12 +383,3 @@ void create_satvals_to_image(Layer_t* layer){
     layer->res = xt::adapt(vec,shape);
 }
 
-// void create_negate_property(GRBModel& model, std::vector<GRBVar>& var_vector, Network_t* net, Layer_t* curr_layer){
-//     size_t var_counter = curr_layer->pred_layer->dims;
-//     int numlayer = net->layer_vec.size();
-//     for(int i=curr_layer->layer_index; i<numlayer-1; i++){
-//         var_counter += net->layer_vec[i]->dims;
-//     }
-//     GRBLinExpr grb_expr = var_vector[var_counter + net->counter_class_dim] - var_vector[var_counter + net->actual_label];
-//     model.addConstr(grb_expr, GRB_GREATER_EQUAL, 0);
-// }

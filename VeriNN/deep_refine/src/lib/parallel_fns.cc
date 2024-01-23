@@ -1,6 +1,7 @@
 #include "concurrent_run.hh"
 #include "../../deeppoly/optimizer.hh"
 #include "milp_mark.hh"
+#include "milp_refine.hh"
 #include "parallel_fns.hh"
 void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector,size_t counter_class_index){
     Layer_t* layer = net->layer_vec.back();
@@ -132,7 +133,7 @@ bool run_milp_mark_with_milp_refine_mine(Network_t* net){
         if(layer->is_activation){
             is_marked = is_layer_marked_mine(net, layer);
             if(is_marked){
-                //std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
+                std::cout<<"Layer: "<<layer->layer_index<<" marked"<<std::endl;
                 break;
             }
         }
@@ -251,3 +252,97 @@ bool is_layer_marked_mine(Network_t* net, Layer_t* start_layer){
     }
     return false;
 }
+
+
+
+
+// double get_umax_i(Layer_t* layer, size_t i){
+//     double max_val = -INFINITY;
+//     for(size_t j=0; j<layer->dims; j++){
+//         Neuron_t* nt = layer->neurons[j];
+//         if(j != i){
+//             if(nt->ub > max_val){
+//                 max_val = nt->ub;
+//             }
+//         }
+//     }
+//     return max_val;
+// }
+
+
+bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vec){  
+    Layer_t* out_layer = net->layer_vec.back();
+    double l_max_var = -INFINITY;
+    double u_max_var = -INFINITY;
+    for(size_t i=0; i<net->output_dim; i++){
+        if(net->actual_label != i){
+            Neuron_t* nt = out_layer->neurons[i];
+            double lb = -nt->lb;
+            if(l_max_var < lb){
+                l_max_var = lb;
+            }
+
+            if(u_max_var < nt->ub){
+                u_max_var = nt->ub;
+            }
+        }
+    }
+    std::vector<GRBVar> bin_var_vec;
+    std::string max_var_str = "softmax_max_var_"+std::to_string(out_layer->layer_index);
+    GRBVar max_var = model.addVar(l_max_var, u_max_var, 0.0, GRB_CONTINUOUS,max_var_str);
+    size_t correct_var_idx = get_gurobi_var_index(out_layer, net->actual_label);
+    model.addConstr(max_var - var_vec[correct_var_idx] - Configuration_deeppoly::softmax_conf_value, GRB_GREATER_EQUAL, 0);
+
+    for(size_t i=0; i<net->output_dim; i++){
+        if(i != net->actual_label){
+            Neuron_t* nt = out_layer->neurons[i];
+            if(nt->ub > l_max_var){
+                double lb = -nt->lb;
+                size_t var_idx = get_gurobi_var_index(out_layer, i);
+                std::string var_str = "softmax_bin_"+std::to_string(out_layer->layer_index)+"_"+std::to_string(i);
+                GRBVar bin_var = model.addVar(0,1,0,GRB_BINARY, var_str);
+                double umax_i = get_umax_i(out_layer, i);
+                GRBLinExpr grb_expr1 = max_var - var_vec[var_idx] - (1-bin_var)*(umax_i - lb);
+                model.addConstr(grb_expr1, GRB_LESS_EQUAL, 0);
+                GRBLinExpr grb_expr2 = max_var - var_vec[var_idx] - Configuration_deeppoly::softmax_conf_value;
+                model.addConstr(grb_expr2, GRB_GREATER_EQUAL, 0);
+            }
+        }
+    }
+    GRBLinExpr sum_expr = 0;
+    for(GRBVar var : bin_var_vec){
+        sum_expr += var;
+    }
+    model.addConstr(sum_expr, GRB_EQUAL, bin_var_vec.size());
+
+    if(terminate_flag==1){
+        pthread_exit(NULL);
+    }
+
+    std::cout<<"Optimizing in softmax constraint...."<<std::endl;
+    model.optimize();
+
+    int status = model.get(GRB_IntAttr_Status);
+    std::cout<<"Optimization status: "<<status<<std::endl;
+    if(status == GRB_OPTIMAL){
+        pthread_mutex_lock(&lcked);
+        if(terminate_flag==1){
+            pthread_mutex_unlock(&lcked);
+            pthread_exit(NULL);
+        }
+        update_sat_vals(net, var_vec);
+        bool is_coun_ex = is_sat_val_ce(net);
+        if(is_coun_ex){
+            verif_result = false;
+            terminate_flag = true;
+            return false;
+        }
+        //spurius counter example
+        is_refine=true;
+        pthread_mutex_unlock(&lcked);
+        return true;
+    }
+
+    return true;
+}
+

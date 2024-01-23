@@ -3,6 +3,7 @@
 #include "helper.hh"
 #include "optimizer.hh"
 #include "deeppoly_configuration.hh"
+#include "../src/lib/milp_mark.hh"
 #include<thread>
 #include<unordered_set>
 
@@ -693,6 +694,16 @@ bool is_image_verified(Network_t* net){
     std::cout<<std::endl;
     std::vector<GRBVar> var_vector;
     GRBModel model = create_env_model_constr(net, var_vector);
+    if(Configuration_deeppoly::is_softmax_conf_ce){
+        is_verified = is_image_verified_softmax_deeppoly(net);
+        if(is_verified){
+            return true;
+        }
+
+        is_verified = is_image_verified_softmax(net, model, var_vector);
+        return is_verified;
+
+    }
     for(size_t i=0; i<net->output_dim; i++){
         if(i != net->actual_label){
             bool is_already_verified = false;

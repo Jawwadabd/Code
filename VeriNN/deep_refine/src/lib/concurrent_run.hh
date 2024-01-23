@@ -21,4 +21,5 @@ extern bool is_refine;
 extern std::vector<int> refine_comb;
 extern std::vector<Neuron_t*> new_list_mn;
 extern volatile sig_atomic_t terminate_flag;
+extern bool verif_result;
 #endif

@@ -11,6 +11,8 @@ namespace Configuration_deeppoly{
     std::string default_dataset = "MNIST";
     std::string default_tool = "drefine";
     double default_epsilon = 0.03;
+    double default_conf_ce = 0.50;
+    double default_softmax_conf_ce = 0.85;
     std::vector<std::string> dataset_vec = {"MNIST","CIFAR10","ACASXU"};
     size_t input_dim = 784;
 
@@ -53,9 +55,9 @@ namespace Configuration_deeppoly{
             ("vnnlib-prp-file,vnnlib", po::value<std::string>(&vnnlib_prp_file_path)->default_value(""), "vnnlib prp file path")
             ("is-input-split", po::value<bool>(&is_input_split)->default_value(false), "run with heuristic input space split")
             ("is-conf-ce", po::value<bool>(&is_conf_ce)->default_value(true), "Is run with confidence counter-example")
-            ("conf-val", po::value<double>(&conf_val)->default_value(50), "Counter example confidence value")
+            ("conf-val", po::value<double>(&conf_val)->default_value(default_conf_ce), "Counter example confidence value")
             ("is-soft-conf-ce", po::value<bool>(&is_softmax_conf_ce)->default_value(false), "Is run with softmax confidence counter-example")
-            ("soft-conf-val", po::value<double>(&softmax_conf_value)->default_value(50), "Counter example softmax confidence value")
+            ("soft-conf-val", po::value<double>(&softmax_conf_value)->default_value(default_softmax_conf_ce), "Counter example softmax confidence value")
             ;
             
             po::store(po::parse_command_line(num_of_params, params, desc), vm);
