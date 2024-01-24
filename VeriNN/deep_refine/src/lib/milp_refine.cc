@@ -61,7 +61,7 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
         }
     }
 
-    std::cout<<"Number of binary variables: "<<bin_var_vec.size()<<std::endl;
+    // std::cout<<"Number of binary variables: "<<bin_var_vec.size()<<std::endl;
     GRBLinExpr sum_expr = 0;
     for(GRBVar var : bin_var_vec){
         sum_expr += var;
@@ -73,7 +73,7 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
     int status = model.get(GRB_IntAttr_Status);
     std::cout<<"Optimization status: "<<status<<std::endl;
     if(status == GRB_OPTIMAL){
-        std::cout<<"Max value: "<<max_var.get(GRB_DoubleAttr_X)<<std::endl;
+        // std::cout<<"Max value: "<<max_var.get(GRB_DoubleAttr_X)<<std::endl;
         update_sat_vals(net, var_vec);
         return false;
     }
