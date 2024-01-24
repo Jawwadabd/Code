@@ -73,7 +73,7 @@ bool is_actual_and_pred_label_same(Network_t* net, size_t image_index){
     }
     
     double sum=0;
-    for(int i=0;i<net->layer_vec.back()->res.size();i++){
+    for(size_t i=0;i<net->layer_vec.back()->res.size();i++){
         sum+=net->layer_vec.back()->res[i]<0?0:net->layer_vec.back()->res[i];
     }
     og_conf= net->layer_vec.back()->res[net->pred_label]/sum;
@@ -275,7 +275,6 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
         while(loop_counter < loop_upper_bound){
             std::cout<<"refine loop"<<std::endl;
             bool is_ce = run_milp_mark_with_milp_refine(net);
-            int cntr=0;
             if(is_ce){
                 std::cout<<"here in is_ce"<<std::endl;
                 return FAILED;

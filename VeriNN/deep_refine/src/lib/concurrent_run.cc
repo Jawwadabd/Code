@@ -41,7 +41,7 @@ int relu_constr_mine(Layer_t *layer, GRBModel &model, std::vector<GRBVar> &var_v
             model.addConstr(grb_expr, GRB_EQUAL, 0);
         }
         else if (pred_nt->is_marked)
-        {   int b;
+        {   size_t b;
             for(b=0;b<new_list_mn.size();b++){
                 if(pred_nt==new_list_mn[b]){
                     break;

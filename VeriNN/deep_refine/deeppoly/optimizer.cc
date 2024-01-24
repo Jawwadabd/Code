@@ -238,7 +238,7 @@ bool verify_by_milp(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_ve
     if(model.get(GRB_IntAttr_Status) != GRB_OPTIMAL){
         return true;
     }
-    double obj_val;
+    double obj_val=0;
     try
     {
         // code that could cause exception

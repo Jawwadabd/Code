@@ -6,7 +6,6 @@
 void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector,size_t counter_class_index){
     Layer_t* layer = net->layer_vec.back();
     size_t index=get_gurobi_var_index(layer, 0);
-    size_t actual_class_var_index  = get_gurobi_var_index(layer, net->actual_label);
     size_t counter_class_var_index = get_gurobi_var_index(layer, counter_class_index);
     double deno_sum=0;
     for (int i=0;i<=9;i++){
@@ -14,6 +13,7 @@ void print_conf(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vector
         deno_sum+=var_vector[index+i].get(GRB_DoubleAttr_X);
     }
     double conf = var_vector[counter_class_var_index].get(GRB_DoubleAttr_X)/deno_sum;
+    // conf;
     // std::cout<<"Abstract Confidence is " << conf*100<<std::endl;
 }
 
@@ -52,7 +52,7 @@ bool verify_by_milp_mine(Network_t* net, GRBModel& model, std::vector<GRBVar>& v
         // std::cout<<"here not opti"<<std::endl;
         return true;
     }
-    double obj_val;
+    double obj_val=0;
     try
     {
         // code that could cause exception
@@ -151,7 +151,6 @@ bool run_milp_refine_with_milp_mark_input_split_mine(Network_t* net){
     while(loop_counter < loop_upper_bound){
         std::cout<<"refine loop"<<std::endl;
         bool is_ce = run_milp_mark_with_milp_refine(net);
-        int cntr=0;
         if(is_ce){
             std::cout<<"here in is_ce"<<std::endl;
             return false;
