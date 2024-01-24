@@ -326,9 +326,9 @@ bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::
     //     }
     // }
 
-    std::string model_file_path = "/home/u1411251/jawwad/code/VeriNN/deep_refine";
-    model_file_path += "/model.lp";
-    model.write(model_file_path);
+    // std::string model_file_path = "/home/u1411251/jawwad/code/VeriNN/deep_refine";
+    // model_file_path += "/model.lp";
+    // model.write(model_file_path);
 
     model.optimize();
 
