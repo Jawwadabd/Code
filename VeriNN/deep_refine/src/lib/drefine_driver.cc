@@ -276,7 +276,7 @@ drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
             std::cout<<"refine loop"<<std::endl;
             bool is_ce = run_milp_mark_with_milp_refine(net);
             if(is_ce){
-                std::cout<<"here in is_ce"<<std::endl;
+                std::cout<<"here in is_ce with label: "<<net->pred_label<<std::endl;
                 return FAILED;
             }
             else{

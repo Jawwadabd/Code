@@ -699,7 +699,6 @@ bool is_image_verified(Network_t* net){
         if(is_verified){
             return true;
         }
-
         is_verified = is_image_verified_softmax(net, model, var_vector);
         return is_verified;
 

@@ -199,10 +199,14 @@ bool is_layer_marked(Network_t* net, Layer_t* start_layer){
     std::cout<<"dp-status==== "<<status<<std::endl;
     if(status == GRB_OPTIMAL){
         // std::cout<<"Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
+        std::cout<<"In marked layer: ";
         for(size_t i=0; i<start_layer->neurons.size(); i++){
             Neuron_t* pred_nt = start_layer->pred_layer->neurons[i];
             GRBVar var = var_vector[var_counter+i];
             double sat_val = var.get(GRB_DoubleAttr_X);
+            if(start_layer->layer_index == 5){
+                std::cout<<start_layer->res[i]<<" , ";
+            }
             double res = start_layer->res[i];
             double diff = abs(sat_val - res);
             if(diff > DIFF_TOLERANCE){
@@ -213,7 +217,7 @@ bool is_layer_marked(Network_t* net, Layer_t* start_layer){
                 }
             }
         }
-        // std::cout<<std::endl;
+        std::cout<<std::endl;
         std::cout<<"dp-Layer index: "<<start_layer->pred_layer->layer_index<<", marked neurons: ";
         if(nt_err_map.size() > MAX_NUM_MARKED_NEURONS){
             for(size_t i = 0; i<MAX_NUM_MARKED_NEURONS; i++){
@@ -328,48 +332,85 @@ void create_relu_constr(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& va
     }
 }
 
+bool is_ce_with_softmax_conf(Network_t* net){
+    Layer_t* last_layer = net->layer_vec.back();
+    double max_val = last_layer->res[net->pred_label] + DIFF_TOLERANCE;
+    for(size_t i=0; i<net->output_dim; i++){
+        if(i != net->pred_label){
+            double val = last_layer->res[i];
+            if(max_val < (val + Configuration_deeppoly::softmax_conf_value)){
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool is_ce_with_conf(Network_t* net){
+    Layer_t* last_layer = net->layer_vec.back();
+    
+    double sum_out = 0;
+    for(size_t i=0; i<net->output_dim; i++){
+        sum_out += last_layer->res[i];
+    }
+
+    double conf = (last_layer->res[net->pred_label])/sum_out;
+    if(conf >= Configuration_deeppoly::conf_val){
+        std::cout<<"CE confidence - "<<conf<<std::endl;    
+        std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
+        return true;
+    }
+    return false;
+}
+
+void assign_net_pred(Network_t* net){
+    Layer_t* last_layer = net->layer_vec.back();
+    double max_val = last_layer->res[net->actual_label];
+    for(size_t i=0; i<net->output_dim; i++){
+        double val = last_layer->res[i];
+        if(net->actual_label != i){
+            if(max_val <= (val+DIFF_TOLERANCE)){
+                max_val = val+DIFF_TOLERANCE;
+                net->pred_label = i;
+            }
+        }
+    }
+}
+
 
 bool is_sat_val_ce(Network_t* net){
+    bool is_counter_example = false;
     create_satvals_to_image(net->input_layer);
     net->forward_propgate_network(0, net->input_layer->res);
     if(Configuration_deeppoly::vnnlib_prp_file_path != ""){
         bool is_sat = is_prop_sat_vnnlib(net);
         return is_sat;
     }
-    auto pred_label = xt::argmax(net->layer_vec.back()->res);
-    net->pred_label = pred_label[0];
+
+    assign_net_pred(net);
+
     if(net->actual_label != net->pred_label){
-        Layer_t* last_layer = net->layer_vec.back();
-        double sum_out = 0;
-        for(size_t i=0; i<net->output_dim; i++){
-            sum_out += last_layer->res[i];
-        }
-        int i=net->pred_label;
-        double conf = (last_layer->res[i])/sum_out;
         if(Configuration_deeppoly::is_conf_ce){
-            if(conf >= Configuration_deeppoly::conf_val){
-                std::cout<<"CE confidence - "<<conf<<std::endl;    
-                std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
-                return true;
-            }
-            return false;
+            is_counter_example = is_ce_with_conf(net);
+        }
+        else if(Configuration_deeppoly::is_softmax_conf_ce){
+            is_counter_example = is_ce_with_softmax_conf(net);
+        }
+        else{
+            is_counter_example = true;
         }
 
-        double max_val = last_layer->res[net->pred_label];
-        if(Configuration_deeppoly::is_softmax_conf_ce){
+        if(is_counter_example){
+            std::cout<<"CE output values: ";
+            Layer_t* last_layer = net->layer_vec.back();
             for(size_t i=0; i<net->output_dim; i++){
-                if(i != net->pred_label){
-                    double val = last_layer->res[i];
-                    if(max_val < val + Configuration_deeppoly::softmax_conf_value){
-                        return false;
-                    }
-                }
+                std::cout<<last_layer->res[i]<<" , ";
             }
+            std::cout<<std::endl;
         }
-        
-        return true;
     }
-    return false;
+    return is_counter_example;
 }
 
 void create_satvals_to_image(Layer_t* layer){
