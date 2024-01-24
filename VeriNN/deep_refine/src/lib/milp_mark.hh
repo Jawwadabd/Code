@@ -15,5 +15,7 @@ void create_relu_constr(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& va
 bool is_sat_val_ce(Network_t* net);
 void create_satvals_to_image(Layer_t* layer);
 // void create_negate_property(GRBModel& model, std::vector<GRBVar>& var_vector, Network_t* net, Layer_t* curr_layer);
+double compute_softmax_conf(Network_t* net, size_t label);
+double compute_conf(Network_t* net, size_t label);
 
 #endif

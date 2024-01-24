@@ -332,18 +332,46 @@ void create_relu_constr(Layer_t* layer, GRBModel& model, std::vector<GRBVar>& va
     }
 }
 
+double compute_softmax_conf(Network_t* net, size_t label){
+    Layer_t* last_layer = net->layer_vec.back();
+    double label_val = last_layer->res[label] + DIFF_TOLERANCE;
+    double denominator = 0;
+    for(size_t i=0; i<net->output_dim; i++){
+        double val = last_layer->res[i];
+        denominator += pow(EULER_C, val);
+    }
+
+    double conf = pow(EULER_C, label_val)/denominator;
+    return conf;
+}
+
+double compute_conf(Network_t* net, size_t label){
+    Layer_t* last_layer = net->layer_vec.back();
+    double label_val = last_layer->res[label] + DIFF_TOLERANCE;
+    double denominator = 0;
+    for(size_t i=0; i<net->output_dim; i++){
+        denominator += last_layer->res[i];
+    }
+
+    double conf = label_val/denominator;
+    return conf;
+}
+
 bool is_ce_with_softmax_conf(Network_t* net){
     Layer_t* last_layer = net->layer_vec.back();
     double max_val = last_layer->res[net->pred_label] + DIFF_TOLERANCE;
+    double denominator = 0;
     for(size_t i=0; i<net->output_dim; i++){
+        double val = last_layer->res[i];
+        denominator += pow(EULER_C, val);
         if(i != net->pred_label){
-            double val = last_layer->res[i];
             if(max_val < (val + Configuration_deeppoly::softmax_conf_value)){
                 return false;
             }
         }
     }
 
+    net->ce_conf = pow(EULER_C, max_val)/denominator;
     return true;
 }
 
@@ -357,6 +385,7 @@ bool is_ce_with_conf(Network_t* net){
 
     double conf = (last_layer->res[net->pred_label])/sum_out;
     if(conf >= Configuration_deeppoly::conf_val){
+        net->ce_conf = conf;
         std::cout<<"CE confidence - "<<conf<<std::endl;    
         std::cout<<"Found counter assignment!!"<<" --- "<<pthread_self()<<std::endl;
         return true;

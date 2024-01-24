@@ -22,6 +22,7 @@
 #define MAX_NUM_MARKED_NEURONS 5
 #define MAX_INPUT_DIMS_TO_SPLIT 2
 #define NUM_THREADS 20
+#define EULER_C 2.7182
 
 enum drefine_status {FAILED, DEEPPOLY_VERIFIED, VERIFIED, UNKNOWN};
 enum concurr_status {is_verif,is_ce,is_spur_ce,unchecked};

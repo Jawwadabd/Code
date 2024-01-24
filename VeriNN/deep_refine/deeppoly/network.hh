@@ -140,6 +140,8 @@ class Network_t{
 		std::map<size_t, std::vector<size_t>> index_map_dims_to_split;
 		std::map<size_t, double> index_vs_err;
 		std::vector<size_t> dims_to_split;
+		double orig_conf = 0;
+		double ce_conf = 0;
 		
 
 		~Network_t(){
