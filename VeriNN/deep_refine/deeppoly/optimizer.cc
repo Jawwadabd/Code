@@ -440,7 +440,10 @@ void update_sat_vals(Network_t* net, std::vector<GRBVar>& var_vec){
         counter += net->layer_vec[layer_index]->dims;
     }
     Layer_t* last_layer = net->layer_vec[layer_index];
+    std::cout<<"Output sat values: ";
     for(Neuron_t* nt : last_layer->neurons){
         nt->sat_val = var_vec[counter+nt->neuron_index].get(GRB_DoubleAttr_X);
+        std::cout<<nt->sat_val<<" , ";
     }
+    std::cout<<std::endl;
 }

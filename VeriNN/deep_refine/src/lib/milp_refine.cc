@@ -17,7 +17,6 @@ double get_umax_i(Layer_t* layer, size_t i){
 }
 
 bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBVar>& var_vec){
-    
     Layer_t* out_layer = net->layer_vec.back();
     double l_max_var = -INFINITY;
     double u_max_var = -INFINITY;
@@ -39,6 +38,10 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
     GRBVar max_var = model.addVar(l_max_var, u_max_var, 0.0, GRB_CONTINUOUS,max_var_str);
     size_t correct_var_idx = get_gurobi_var_index(out_layer, net->actual_label);
     model.addConstr(max_var - var_vec[correct_var_idx] - Configuration_deeppoly::softmax_conf_value, GRB_GREATER_EQUAL, 0);
+    for(size_t i=0; i<net->output_dim; i++){
+        Neuron_t* nt = net->layer_vec.back()->neurons[i];
+        std::cout<<"("<<-nt->lb<<","<<nt->ub<<")"<<std::endl;
+    }
 
     for(size_t i=0; i<net->output_dim; i++){
         if(i != net->actual_label){
@@ -48,6 +51,7 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
                 size_t var_idx = get_gurobi_var_index(out_layer, i);
                 std::string var_str = "softmax_bin_"+std::to_string(out_layer->layer_index)+"_"+std::to_string(i);
                 GRBVar bin_var = model.addVar(0,1,0,GRB_BINARY, var_str);
+                bin_var_vec.push_back(bin_var);
                 double umax_i = get_umax_i(out_layer, i);
                 GRBLinExpr grb_expr1 = max_var - var_vec[var_idx] - (1-bin_var)*(umax_i - lb);
                 model.addConstr(grb_expr1, GRB_LESS_EQUAL, 0);
@@ -56,6 +60,8 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
             }
         }
     }
+
+    std::cout<<"Number of binary variables: "<<bin_var_vec.size()<<std::endl;
     GRBLinExpr sum_expr = 0;
     for(GRBVar var : bin_var_vec){
         sum_expr += var;
@@ -67,6 +73,7 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
     int status = model.get(GRB_IntAttr_Status);
     std::cout<<"Optimization status: "<<status<<std::endl;
     if(status == GRB_OPTIMAL){
+        std::cout<<"Max value: "<<max_var.get(GRB_DoubleAttr_X)<<std::endl;
         update_sat_vals(net, var_vec);
         return false;
     }

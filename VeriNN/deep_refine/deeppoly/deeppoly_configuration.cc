@@ -54,7 +54,7 @@ namespace Configuration_deeppoly{
             ("tool", po::value<std::string>(&tool)->default_value(default_tool), "tool name drefine/deeppoly")
             ("vnnlib-prp-file,vnnlib", po::value<std::string>(&vnnlib_prp_file_path)->default_value(""), "vnnlib prp file path")
             ("is-input-split", po::value<bool>(&is_input_split)->default_value(false), "run with heuristic input space split")
-            ("is-conf-ce", po::value<bool>(&is_conf_ce)->default_value(true), "Is run with confidence counter-example")
+            ("is-conf-ce", po::value<bool>(&is_conf_ce)->default_value(false), "Is run with confidence counter-example")
             ("conf-val", po::value<double>(&conf_val)->default_value(default_conf_ce), "Counter example confidence value")
             ("is-soft-conf-ce", po::value<bool>(&is_softmax_conf_ce)->default_value(false), "Is run with softmax confidence counter-example")
             ("soft-conf-val", po::value<double>(&softmax_conf_value)->default_value(default_softmax_conf_ce), "Counter example softmax confidence value")

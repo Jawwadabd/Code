@@ -234,7 +234,7 @@ bool looper(Network_t *net){
         std::cout<<"number of mark neurons: "<<new_list_mn.size()<<std::endl;
         if(is_refine==true)
         {
-            if(new_list_mn.size()<10)
+            if(new_list_mn.size()<5)
             {
                 run_milp_mark_with_milp_refine_mine(net);
                 std::cout<<"After refine....."<<std::endl;

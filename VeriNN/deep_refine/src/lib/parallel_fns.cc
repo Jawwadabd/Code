@@ -331,6 +331,7 @@ bool is_image_verified_softmax_concurrent(Network_t* net, GRBModel& model, std::
         update_sat_vals(net, var_vec);
         bool is_coun_ex = is_sat_val_ce(net);
         if(is_coun_ex){
+            pthread_mutex_unlock(&lcked);
             verif_result = false;
             terminate_flag = true;
             // std::cout<<"real ce"<<std::endl;
