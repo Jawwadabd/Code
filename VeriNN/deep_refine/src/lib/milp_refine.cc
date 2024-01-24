@@ -38,10 +38,10 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
     GRBVar max_var = model.addVar(l_max_var, u_max_var, 0.0, GRB_CONTINUOUS,max_var_str);
     size_t correct_var_idx = get_gurobi_var_index(out_layer, net->actual_label);
     model.addConstr(max_var - var_vec[correct_var_idx] - Configuration_deeppoly::softmax_conf_value, GRB_GREATER_EQUAL, 0);
-    for(size_t i=0; i<net->output_dim; i++){
-        Neuron_t* nt = net->layer_vec.back()->neurons[i];
-        std::cout<<"("<<-nt->lb<<","<<nt->ub<<")"<<std::endl;
-    }
+    // for(size_t i=0; i<net->output_dim; i++){
+    //     Neuron_t* nt = net->layer_vec.back()->neurons[i];
+    //     std::cout<<"("<<-nt->lb<<","<<nt->ub<<")"<<std::endl;
+    // }
 
     for(size_t i=0; i<net->output_dim; i++){
         if(i != net->actual_label){
@@ -55,20 +55,31 @@ bool is_image_verified_softmax(Network_t* net, GRBModel& model, std::vector<GRBV
                 double umax_i = get_umax_i(out_layer, i);
                 GRBLinExpr grb_expr1 = max_var - var_vec[var_idx] - (1-bin_var)*(umax_i - lb);
                 model.addConstr(grb_expr1, GRB_LESS_EQUAL, 0);
-                GRBLinExpr grb_expr2 = max_var - var_vec[var_idx] - Configuration_deeppoly::softmax_conf_value;
+                GRBLinExpr grb_expr2 = max_var - var_vec[var_idx] - (1-bin_var)*Configuration_deeppoly::softmax_conf_value;
                 model.addConstr(grb_expr2, GRB_GREATER_EQUAL, 0);
             }
         }
     }
 
-    // std::cout<<"Number of binary variables: "<<bin_var_vec.size()<<std::endl;
+    // size_t idx = get_gurobi_var_index(out_layer, 0);
+
+    // for(size_t i=0; i<net->output_dim; i++){
+    //     if(i != 6){
+    //         model.addConstr(var_vec[idx+6]-var_vec[idx+i]-Configuration_deeppoly::softmax_conf_value, GRB_GREATER_EQUAL, 0);
+    //     }
+    // }
+
+    std::cout<<"Number of binary variables: "<<bin_var_vec.size()<<std::endl;
     GRBLinExpr sum_expr = 0;
     for(GRBVar var : bin_var_vec){
         sum_expr += var;
     }
-    model.addConstr(sum_expr, GRB_EQUAL, bin_var_vec.size());
+    model.addConstr(sum_expr, GRB_EQUAL, 1);
 
     std::cout<<"Optimizing in softmax constraint...."<<std::endl;
+    // std::string model_file_path = "/home/u1411251/jawwad/code/VeriNN/deep_refine";
+    // model_file_path += "/model.lp";
+    // model.write(model_file_path);
     model.optimize();
     int status = model.get(GRB_IntAttr_Status);
     std::cout<<"Optimization status: "<<status<<std::endl;

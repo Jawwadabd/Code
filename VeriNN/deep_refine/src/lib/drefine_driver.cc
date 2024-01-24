@@ -20,6 +20,10 @@ bool concurrent_flag=1;
 double og_conf=0;
 int run_refine_poly(int num_args, char* params[]){
     int is_help = deeppoly_set_params(num_args, params);
+    if(Configuration_deeppoly::conf_val == 0 || Configuration_deeppoly::softmax_conf_value == 0){
+        Configuration_deeppoly::is_conf_ce = false;
+        Configuration_deeppoly::is_softmax_conf_ce = false;
+    }
     if(is_help || (!is_valid_dataset())){
         return 1;
     }
@@ -234,35 +238,6 @@ drefine_status run_refine_poly_for_one_task(Network_t* net){
     drefine_status status = run_milp_refine_with_milp_mark_input_split(net);
     return status;
 }
-
-// bool run_milp_refine_with_milp_mark_input_split_mine(Network_t* net){
-//     net->counter_class_dim = net->actual_label;
-//     size_t loop_upper_bound = MILP_WITH_MILP_LIMIT;
-//     if(Configuration_deeppoly::is_input_split && SUB_PROB_COUNTS < 3){
-//         loop_upper_bound = MILP_WITH_MILP_LIMIT_WITH_INPUT_SPLIT;
-//     }
-//     size_t loop_counter = 0;
-//     while(loop_counter < loop_upper_bound){
-//         std::cout<<"refine loop"<<std::endl;
-//         bool is_ce = run_milp_mark_with_milp_refine(net);
-//         int cntr=0;
-//         if(is_ce){
-//             std::cout<<"here in is_ce"<<std::endl;
-//             return false;
-//         }
-//         else{
-//             bool is_image_verified = is_image_verified_by_milp(net);
-//             // bool is_image_verified = concurrent_exec(net);
-//             std::cout<<"is image verified "<<is_image_verified<<std::endl;
-//             if(is_image_verified){
-//                return true;
-//             }
-//         }
-//         loop_counter++;
-//         ITER_COUNTS += 1;
-//     }
-//     return 0; //DUMMY RETURN
-// }
 
 drefine_status  run_milp_refine_with_milp_mark_input_split(Network_t* net){
     net->counter_class_dim = net->actual_label;
