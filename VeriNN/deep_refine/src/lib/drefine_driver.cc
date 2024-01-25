@@ -579,9 +579,11 @@ void print_status_string(Network_t* net, size_t tool_status, std::string tool_na
         base_prp_name = "null";
     }
 
-    std::string str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+","+std::to_string(image_index)+","+std::to_string(net->pred_label)+","+base_prp_name+","+status_string+","+tool_name+","+std::to_string(SUB_PROB_COUNTS)+","+std::to_string(ITER_COUNTS)+","+std::to_string(NUM_MARKED_NEURONS)+","+std::to_string(duration.count())+","+std::to_string(Configuration_deeppoly::conf_val)+","+std::to_string(net->orig_conf)+","+std::to_string(net->ce_conf);
+    std::string str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+","+std::to_string(image_index)+","+std::to_string(net->pred_label)+","+base_prp_name+","+status_string+","+tool_name+","+std::to_string(SUB_PROB_COUNTS)+","+std::to_string(ITER_COUNTS)+","+std::to_string(NUM_MARKED_NEURONS)+","+std::to_string(duration.count())+","+std::to_string(Configuration_deeppoly::conf_val)+std::to_string(Configuration_deeppoly::softmax_conf_value)+","+std::to_string(net->orig_conf)+","+std::to_string(net->ce_conf);
+    
     write_to_file(Configuration_deeppoly::result_file, str);
-    str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+",image_index="+std::to_string(image_index)+",image_label="+std::to_string(net->pred_label)+",prop_name="+base_prp_name+","+status_string+","+tool_name+",num_sub_prob="+std::to_string(SUB_PROB_COUNTS)+",num_cegar_iterations:"+std::to_string(ITER_COUNTS)+",num_marked_neurons="+std::to_string(NUM_MARKED_NEURONS)+",total_time="+std::to_string(duration.count())+",confidence_val="+std::to_string(Configuration_deeppoly::conf_val)+",original_conf="+std::to_string(net->orig_conf)+",ce_conf="+std::to_string(net->ce_conf);
+    
+    str = base_net_name+","+std::to_string(Configuration_deeppoly::epsilon)+",image_index="+std::to_string(image_index)+",image_label="+std::to_string(net->pred_label)+",prop_name="+base_prp_name+","+status_string+","+tool_name+",num_sub_prob="+std::to_string(SUB_PROB_COUNTS)+",num_cegar_iterations:"+std::to_string(ITER_COUNTS)+",num_marked_neurons="+std::to_string(NUM_MARKED_NEURONS)+",total_time="+std::to_string(duration.count())+",confidence_val="+std::to_string(Configuration_deeppoly::conf_val)+",softmax_confidence_val="+std::to_string(Configuration_deeppoly::softmax_conf_value)+",original_conf="+std::to_string(net->orig_conf)+",ce_conf="+std::to_string(net->ce_conf);
 
     std::cout<<str<<std::endl;
 }
